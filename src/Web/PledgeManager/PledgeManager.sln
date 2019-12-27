@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.87
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PledgeManager.Web", "PledgeManager.Web\PledgeManager.Web.csproj", "{548AD065-A033-4CC5-9296-A99A2FC9C71E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{548AD065-A033-4CC5-9296-A99A2FC9C71E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{548AD065-A033-4CC5-9296-A99A2FC9C71E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{548AD065-A033-4CC5-9296-A99A2FC9C71E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{548AD065-A033-4CC5-9296-A99A2FC9C71E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3C4AE510-7F95-49D3-A8CE-1CF3352971CB}
+	EndGlobalSection
+EndGlobal

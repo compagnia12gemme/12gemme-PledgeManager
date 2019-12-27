@@ -1,0 +1,40 @@
+version: '3'
+
+networks:
+  web:
+    external: true
+  backend:
+
+volumes:
+  12gemme-pledge-manager-mongodb:
+    external: true
+
+services:
+  server:
+    build: ./src/Web
+    depends_on:
+    - mongo
+    networks:
+    - web
+    - backend
+    expose:
+    - "8080"
+    labels:
+    - "traefik.enable=true"
+    - "traefik.docker.network=web"
+    - "traefik.protocol=http"
+    - "traefik.port=8080"
+    - "traefik.frontend.rule=Host:pledge.12gem.me"
+    - "traefik.frontend.entryPoints=http,https"
+    - "traefik.frontend.redirect.entryPoint=https"
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:4.2.2
+    networks:
+    - backend
+    expose:
+    - "27017"
+    volumes:
+    - 12gemme-pledge-manager-mongodb:/data/db:rw
+    restart: always
