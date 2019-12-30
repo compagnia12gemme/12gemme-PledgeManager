@@ -21,7 +21,7 @@ namespace PledgeManager.Web {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
-            services.AddRazorPages();
+            services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -30,7 +30,6 @@ namespace PledgeManager.Web {
                 app.UseDeveloperExceptionPage();
             }
             else {
-                app.UseExceptionHandler("/error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -39,10 +38,19 @@ namespace PledgeManager.Web {
 
             app.UseRouting();
 
-            app.UseAuthorization();
-
             app.UseEndpoints(endpoints => {
-                endpoints.MapRazorPages();
+                endpoints.MapControllerRoute("pledge",
+                    "campaign/{campaign}/pledge/{userId}/{token}",
+                    defaults: new {
+                        controller = "Pledge",
+                        action = "Index"
+                    });
+
+                endpoints.MapControllerRoute("root",
+                    "{action=Index}",
+                    defaults: new {
+                        controller = "Home"
+                    });
             });
         }
     }
