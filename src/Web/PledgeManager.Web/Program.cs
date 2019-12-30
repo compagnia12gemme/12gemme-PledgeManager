@@ -8,7 +8,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace PledgeManager.Web {
+
     public class Program {
+
         public static void Main(string[] args) {
             CreateHostBuilder(args).Build().Run();
         }
@@ -18,5 +20,7 @@ namespace PledgeManager.Web {
                 .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseStartup<Startup>();
                 });
+
     }
+
 }
