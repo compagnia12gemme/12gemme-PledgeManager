@@ -60,7 +60,10 @@ namespace PledgeManager.Web.Controllers {
                 return Unauthorized();
             }
 
-            return Json(pledge);
+            return View("Show", new PledgeShowViewModel {
+                Campaign = c,
+                Pledge = pledge
+            });
         }
 
     }
