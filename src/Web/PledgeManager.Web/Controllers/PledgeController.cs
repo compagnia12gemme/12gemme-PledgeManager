@@ -26,6 +26,7 @@ namespace PledgeManager.Web.Controllers {
 
             var c = await _database.GetCampaign(campaign);
             if(c == null) {
+                _logger.LogInformation("Campaign {0} does not exist", campaign);
                 return NotFound();
             }
 

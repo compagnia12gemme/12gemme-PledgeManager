@@ -19,6 +19,8 @@ services:
     - backend
     expose:
     - "8080"
+    environment:
+    - ASPNETCORE_ENVIRONMENT=Development
     labels:
     - "traefik.enable=true"
     - "traefik.docker.network=web"
