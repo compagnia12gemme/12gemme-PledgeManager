@@ -9,20 +9,27 @@ namespace PledgeManager.Web.Controllers {
 
     public class PledgeController : Controller {
 
+        private readonly MongoDatabase _database;
         private readonly ILogger<PledgeController> _logger;
 
-        public PledgeController(ILogger<PledgeController> logger) {
+        public PledgeController(MongoDatabase database, ILogger<PledgeController> logger) {
+            _database = database;
             _logger = logger;
         }
 
-        public IActionResult Index(
+        public async Task<IActionResult> Index(
             [FromRoute] string campaign,
             [FromRoute] int userId,
             [FromRoute] string token)
         {
             _logger.LogInformation("Loading pledge information for campaign {0} and user {1}", campaign, userId);
 
-            return Content($"Pledge/Index campaign {campaign} user {userId} token {token}");
+            var c = await _database.GetCampaign(campaign);
+            if(c == null) {
+                return NotFound();
+            }
+
+            return Content($"Pledge/Index campaign {c.Id} user {userId} token {token}");
         }
 
     }
