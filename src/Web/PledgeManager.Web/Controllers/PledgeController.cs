@@ -30,7 +30,17 @@ namespace PledgeManager.Web.Controllers {
                 return NotFound();
             }
 
-            return Content($"Pledge/Index campaign {c.Id} user {userId} token {token}");
+            var pledge = await _database.GetPledge(c.Id, userId);
+            if(pledge == null) {
+                _logger.LogInformation("Pledge for user #{0} does not exist", userId);
+                return NotFound();
+            }
+            if(!pledge.Token.Equals(token)) {
+                _logger.LogInformation("Token for user #{0} does not match", userId);
+                return NotFound();
+            }
+
+            return Json(pledge);
         }
 
     }

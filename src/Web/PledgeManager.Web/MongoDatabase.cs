@@ -54,9 +54,24 @@ namespace PledgeManager.Web {
             }
         }
 
+        private IMongoCollection<Pledge> PledgeCollection {
+            get {
+                return PledgeDatabase.GetCollection<Pledge>("Pledges");
+            }
+        }
+
         public async Task<Campaign> GetCampaign(string code) {
             var filter = Builders<Campaign>.Filter.Eq(c => c.Code, code);
-            return await CampaignCollection.Find(filter).SingleOrDefaultAsync();
+            return (await CampaignCollection.FindAsync(filter)).SingleOrDefault();
+        }
+
+        public async Task<Pledge> GetPledge(string campaignId, int userId) {
+            var filter = Builders<Pledge>.Filter
+                .And(
+                    Builders<Pledge>.Filter.Eq(p => p.CampaignId, campaignId),
+                    Builders<Pledge>.Filter.Eq(p => p.UserId, userId)
+                );
+            return (await PledgeCollection.FindAsync(filter)).SingleOrDefault();
         }
 
     }

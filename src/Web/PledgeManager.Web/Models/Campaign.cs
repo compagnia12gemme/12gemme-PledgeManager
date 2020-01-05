@@ -17,6 +17,16 @@ namespace PledgeManager.Web.Models {
         [BsonElement("code")]
         public string Code { get; set; }
 
+        [BsonElement("title")]
+        public string Title { get; set; }
+
+        [BsonElement("description")]
+        public string Description { get; set; }
+
+        [BsonElement("terminatedOn")]
+        [BsonDateTimeOptions(DateOnly = true, Kind = DateTimeKind.Unspecified)]
+        public DateTime TerminatedOn { get; set; }
+
         [BsonExtraElements]
         public BsonDocument CatchAll { get; set; }
 
