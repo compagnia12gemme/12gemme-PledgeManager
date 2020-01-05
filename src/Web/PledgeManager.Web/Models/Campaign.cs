@@ -27,6 +27,9 @@ namespace PledgeManager.Web.Models {
         [BsonDateTimeOptions(DateOnly = true, Kind = DateTimeKind.Unspecified)]
         public DateTime TerminatedOn { get; set; }
 
+        [BsonElement("rewards")]
+        public List<CampaignReward> Rewards { get; set; } = new List<CampaignReward>();
+
         [BsonExtraElements]
         public BsonDocument CatchAll { get; set; }
 

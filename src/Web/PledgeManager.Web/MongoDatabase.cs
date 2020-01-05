@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using PledgeManager.Web.Models;
 using System;
@@ -28,8 +29,6 @@ namespace PledgeManager.Web {
                     lock (_lockRoot) {
                         if (_client == null) {
                             _logger.LogInformation("Creating new Mongo client");
-
-                            BsonClassMap.RegisterClassMap<Campaign>();
 
                             _client = new MongoClient(
                                 "mongodb://mongo"

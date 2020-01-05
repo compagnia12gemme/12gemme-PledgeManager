@@ -21,28 +21,22 @@ namespace PledgeManager.Web.Models {
         public int UserId { get; set; }
 
         [BsonElement("userToken")]
-        public string Token { get; set; }
+        public string UserToken { get; set; }
 
-        [BsonElement("shippingAddress")]
-        public string ShippingAddress { get; set; }
-
-        [BsonElement("shippingPostCode")]
-        public string ShippingPostCode { get; set; }
-
-        [BsonElement("shippingCity")]
-        public string ShippingCity { get; set; }
-
-        [BsonElement("shippingProvince")]
-        public string ShippingProvince { get; set; }
-
-        [BsonElement("shippingCountry")]
-        public string ShippingCountry { get; set; }
+        [BsonElement("shipping")]
+        public ShippingInfo Shipping { get; set; }
 
         [BsonElement("originalPledge")]
         public decimal OriginalPledge { get; set; }
 
         [BsonElement("currentPledge")]
-        public decimal CurrentPledge { get; set; }
+        public decimal? CurrentPledge { get; set; }
+
+        [BsonElement("originalRewardLevel")]
+        public string OriginalRewardLevel { get; set; }
+
+        [BsonElement("currentRewardLevel")]
+        public string CurrentRewardLevel { get; set; }
 
         [BsonElement("lastUpdate")]
         [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
