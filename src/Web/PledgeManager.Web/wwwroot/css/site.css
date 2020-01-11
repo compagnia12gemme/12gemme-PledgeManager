@@ -22,7 +22,7 @@ b, strong {
 
 header {
     flex-grow: 0;
-    font-family: 'Bungee', cursive;
+    font-family: 'Bungee';
     margin-bottom: 2em;
 }
 header .title {
@@ -35,15 +35,15 @@ header .themeing img {
     box-shadow: 0 1rem 3rem rgba(0,0,0,.175);
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Bungee', cursive;
+h1, h2, h3, h4 {
+    font-family: 'Bungee';
     font-weight: normal;
 }
 
 h1 {
     text-align: center;
 }
-h3 {
+h3, h4 {
     margin-top: 1.5em;
 }
 

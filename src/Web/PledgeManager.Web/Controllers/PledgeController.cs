@@ -147,6 +147,52 @@ namespace PledgeManager.Web.Controllers {
             });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddAddOn(
+            [FromRoute] string campaign,
+            [FromRoute] int userId,
+            [FromRoute] string token,
+            [FromForm] string addonCode,
+            [FromForm] string variant
+        ) {
+            (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
+            if (ret != null) {
+                return ret;
+            }
+
+            var addon = c.AddOns.Where(a => a.Code == addonCode).SingleOrDefault();
+            if(addon == null) {
+                return Content("AddOn code does not exist");
+            }
+            if(addon.Variants != null) {
+                if(!addon.Variants.Any(v => v == variant)) {
+                    return Content("AddOn requires variant but no valid variant code supplied");
+                }
+            }
+            else {
+                // Fix variant to null in case add-on has no variants
+                variant = null;
+            }
+
+            var existingCount = pledge.AddOns.Where(a => a.Code == addonCode).Count();
+            if(existingCount > 0 && !addon.MultipleEnabled) {
+                return Content("Cannot add multiple addons with code {0}", addonCode);
+            }
+
+            pledge.AddOns.Add(new PledgeAddOn {
+                Code = addonCode,
+                Variant = variant
+            });
+            pledge.LastUpdate = DateTime.UtcNow;
+            await _database.UpdatePledge(pledge);
+
+            return RedirectToAction(nameof(Index), new {
+                campaign,
+                userId,
+                token
+            });
+        }
+
     }
 
 }

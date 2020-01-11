@@ -84,31 +84,63 @@
 
         <hr />
 
-        <p>Pledge: @Model.Pledge.Id</p>
+        <h3>Articoli aggiuntivi / Add-ons</h3>
 
-        <p>Original @Model.Pledge.OriginalPledge, now @Model.Pledge.CurrentPledge</p>
+        @if (Model.AddOns.Count() == 0) {
+            <p>Nessun articolo aggiuntivo / no add-ons selected.</p>
+        }
+        else {
+            <div class="list-group">
+                @foreach (var addon in Model.AddOns) {
+                <div class="list-group-item list-group-item-action flex-column align-items-start">
+                    <form action="@Url.Action("AddAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                        <h5 class="mb-1">@addon.AddOn.Title</h5>
+                        @if (addon.Variant != null) {
+                            <p><small>Variant: @addon.Variant</small></p>
+                        }
+                        <button type="submit" class="btn btn-danger btn-sm">Rimuovi</button>
+                    </form>
+                </div>
+                }
+            </div>
+        }
 
-        <p>Campaign: @Model.Campaign.Id</p>
+        <h4>Aggiungi…</h4>
 
-        <p>Current reward: @Model.CurrentReward.Code</p>
+        <div class="list-group">
+            @foreach (var addon in Model.Campaign.AddOns) {
+                <div class="list-group-item list-group-item-action flex-column align-items-start">
+                    <form action="@Url.Action("AddAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                        <input type="hidden" name="addonCode" value="@addon.Code" />
 
-        <p>Upgrade paths:</p>
-        <ul>
-            @foreach (var upgrade in Model.UpgradePaths) {
-                <li>To @upgrade.Reward.Title for @upgrade.UpgradeCost</li>
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">@addon.Title</h5>
+                            <span class="badge badge-warning">
+                                + @addon.Cost.ToString("F1") €
+                            </span>
+                        </div>
+                        <p class="mb-1">@addon.Description</p>
+                        @if(addon.Variants != null) {
+                            <p>
+                                Varianti:
+                                <select name="variant" class="form-control">
+                                    @foreach(var variant in addon.Variants) {
+                                        <option value="@variant">@variant</option>
+                                    }
+                                </select>
+                            </p>
+                        }
+                        <button type="submit" class="btn btn-success btn-sm">Aggiungi</button>
+                    </form>
+                </div>
             }
-        </ul>
+        </div>
 
-        <p>Addons:</p>
-        <ul>
-            @foreach (var addon in Model.AddOns) {
-                <li>@addon.AddOn.Title × @addon.Count (@addon.Variant)</li>
-            }
-        </ul>
+        <hr />
 
-        <p>Final cost: @Model.FinalCost</p>
+        <h3>Quasi fatto / Almost done</h3>
 
-        <p>Can be closed: @Model.CanBeClosed</p>
+
 
     </div>
 </div>
