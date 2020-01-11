@@ -42,15 +42,6 @@ namespace PledgeManager.Web.Controllers {
         {
             _logger.LogInformation("Loading pledge information for campaign {0} and user {1}", campaign, userId);
 
-            _logger.LogInformation("Campaign is mapped {0}",
-                MongoDB.Bson.Serialization.BsonClassMap.IsClassMapRegistered(typeof(Campaign))
-            );
-
-            var map = MongoDB.Bson.Serialization.BsonClassMap.LookupClassMap(typeof(Campaign));
-            _logger.LogInformation("Campaign member map: {0}",
-                string.Join(", ", from m in map.AllMemberMaps select (m.MemberName + "=>" + m.ElementName))
-            );
-
             (var c, var pledge) = await GetPledge(campaign, userId);
             if(c == null || pledge == null) {
                 return NotFound();
@@ -60,10 +51,24 @@ namespace PledgeManager.Web.Controllers {
                 return Unauthorized();
             }
 
-            return View("Show", new PledgeShowViewModel {
+            var rewardMap = c.Rewards.ToDictionary(reward => reward.Code);
+            var addonMap = c.AddOns.ToDictionary(addon => addon.Code);
+            var currentReward = rewardMap[pledge.CurrentRewardLevel];
+
+            var vm = new PledgeShowViewModel {
                 Campaign = c,
-                Pledge = pledge
-            });
+                Pledge = pledge,
+                CurrentReward = currentReward,
+                AddOns = from addon in pledge.AddOns
+                         let campaignAddon = addonMap[addon.Code]
+                         select (campaignAddon, addon.Count, addon.Variant),
+                UpgradePaths = from upgrade in currentReward.UpgradePaths
+                               let campaignUpgrade = rewardMap[upgrade]
+                               let upgradeDifference = campaignUpgrade.PledgeBase - currentReward.PledgeBase
+                               select (campaignUpgrade, upgradeDifference)
+            };
+
+            return View("Show", vm);
         }
 
     }

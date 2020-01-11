@@ -29,14 +29,35 @@ namespace PledgeManager.Web.Models {
         [BsonElement("originalPledge")]
         public decimal OriginalPledge { get; set; }
 
+        private decimal? _currentPledge = null;
+
         [BsonElement("currentPledge")]
-        public decimal? CurrentPledge { get; set; }
+        public decimal CurrentPledge {
+            get {
+                return _currentPledge ?? OriginalPledge;
+            }
+            set {
+                _currentPledge = value;
+            }
+        }
 
         [BsonElement("originalRewardLevel")]
         public string OriginalRewardLevel { get; set; }
 
+        private string _currentRewardLevel = null;
+
         [BsonElement("currentRewardLevel")]
-        public string CurrentRewardLevel { get; set; }
+        public string CurrentRewardLevel {
+            get {
+                return _currentRewardLevel ?? OriginalRewardLevel;
+            }
+            set {
+                _currentRewardLevel = value;
+            }
+        }
+
+        [BsonElement("addons")]
+        public List<PledgeAddOn> AddOns { get; set; } = new List<PledgeAddOn>();
 
         [BsonElement("lastUpdate")]
         [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]

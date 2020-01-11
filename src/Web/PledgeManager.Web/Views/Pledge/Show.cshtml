@@ -6,6 +6,25 @@
 
 <h1>Gestione offerta</h1>
 
-Pledge: @Model.Pledge.Id
+<p>Pledge: @Model.Pledge.Id</p>
 
-Campaign: @Model.Campaign.Id
+<p>Original @Model.Pledge.OriginalPledge, now @Model.Pledge.CurrentPledge</p>
+
+<p>Campaign: @Model.Campaign.Id</p>
+
+<p>Current reward: @Model.CurrentReward.Code</p>
+
+<p>Upgrade paths:</p>
+<ul>
+    @foreach (var upgrade in Model.UpgradePaths) {
+        <li>To @upgrade.Reward.Title for @upgrade.UpgradeCost</li>
+    }
+</ul>
+
+
+<p>Addons:</p>
+<ul>
+    @foreach (var addon in Model.AddOns) {
+        <li>@addon.AddOn.Title × @addon.Count (@addon.Variant)</li>
+    }
+</ul>

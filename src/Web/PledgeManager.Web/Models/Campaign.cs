@@ -30,6 +30,9 @@ namespace PledgeManager.Web.Models {
         [BsonElement("rewards")]
         public List<CampaignReward> Rewards { get; set; } = new List<CampaignReward>();
 
+        [BsonElement("addons")]
+        public List<CampaignAddOn> AddOns { get; set; } = new List<CampaignAddOn>();
+
         [BsonExtraElements]
         public BsonDocument CatchAll { get; set; }
 
