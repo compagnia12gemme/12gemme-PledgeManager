@@ -69,7 +69,7 @@ namespace PledgeManager.Web.Controllers {
 
             var finalCost = currentReward.PledgeBase + (from addon in pledge.AddOns
                                                         let campaignAddon = addonMap[addon.Code]
-                                                        select campaignAddon.Cost * addon.Count).Sum();
+                                                        select campaignAddon.Cost).Sum();
 
             var vm = new PledgeShowViewModel {
                 Campaign = c,
@@ -77,7 +77,7 @@ namespace PledgeManager.Web.Controllers {
                 CurrentReward = currentReward,
                 AddOns = from addon in pledge.AddOns
                          let campaignAddon = addonMap[addon.Code]
-                         select (campaignAddon, addon.Count, addon.Variant),
+                         select (campaignAddon, addon.Variant),
                 UpgradePaths = from upgrade in originalReward.FullUpgradePaths
                                let campaignUpgrade = rewardMap[upgrade]
                                let upgradeDifference = campaignUpgrade.PledgeBase - currentReward.PledgeBase

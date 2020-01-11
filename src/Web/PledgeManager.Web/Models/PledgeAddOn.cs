@@ -11,11 +11,6 @@ namespace PledgeManager.Web.Models {
         [BsonElement("code", Order = 1)]
         public string Code { get; set; }
 
-        [BsonElement("count", Order = 2)]
-        [BsonDefaultValue(1)]
-        [BsonIgnoreIfDefault]
-        public int Count { get; set; } = 1;
-
         [BsonElement("variant")]
         [BsonDefaultValue(null)]
         [BsonIgnoreIfNull]
