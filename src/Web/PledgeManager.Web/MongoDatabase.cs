@@ -73,6 +73,15 @@ namespace PledgeManager.Web {
             return (await PledgeCollection.FindAsync(filter)).SingleOrDefault();
         }
 
+        public async Task UpdatePledge(Pledge pledge) {
+            var idFilter = Builders<Pledge>.Filter.Eq(p => p.Id, pledge.Id);
+            var result = await PledgeCollection.ReplaceOneAsync(idFilter, pledge);
+            if(result.ModifiedCount != 1) {
+                _logger.LogError("Modified count on UpdatePledge not 1");
+                throw new Exception();
+            }
+        }
+
     }
 
 }

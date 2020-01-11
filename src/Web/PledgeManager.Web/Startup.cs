@@ -42,7 +42,7 @@ namespace PledgeManager.Web {
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllerRoute("pledge",
-                    "campaign/{campaign}/pledge/{userId}/{token}",
+                    "campaign/{campaign}/pledge/{userId}/{token}/{action=Index}",
                     defaults: new {
                         controller = "Pledge",
                         action = "Index"
