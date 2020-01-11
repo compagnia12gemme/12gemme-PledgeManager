@@ -47,6 +47,43 @@
 
         <hr />
 
+        <h3>Ricompensa / Reward</h3>
+
+        <div class="list-group">
+            @foreach (var upgrade in Model.UpgradePaths) {
+                var additionalClass = (upgrade.Reward.Code == Model.CurrentReward.Code) ? "active" : "";
+
+                <div class="list-group-item list-group-item-action flex-column align-items-start @additionalClass">
+                    <form action="@Url.Action("UpdateReward", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                        <input type="hidden" name="rewardCode" value="@upgrade.Reward.Code" />
+
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">@upgrade.Reward.Title</h5>
+                            @if (upgrade.UpgradeCost != 0M) {
+                                <span class="badge badge-warning">
+                                    @((upgrade.UpgradeCost > 0) ? "+" : "-")
+                                    @Math.Abs(upgrade.UpgradeCost).ToString("F1")
+                                    €
+                                </span>
+                            }
+                        </div>
+                        <p class="mb-1">@upgrade.Reward.Description</p>
+                        @if (upgrade.UpgradeCost < 0M) {
+                            <button type="submit" class="btn btn-danger btn-sm">Seleziona ricompensa</button>
+                        }
+                        else if (upgrade.UpgradeCost > 0M) {
+                            <button type="submit" class="btn btn-success btn-sm">Seleziona ricompensa</button>
+                        }
+                        else {
+                            <button type="submit" class="btn btn-secondary btn-sm" disabled>Seleziona ricompensa</button>
+                        }
+                    </form>
+                </div>
+            }
+        </div>
+
+        <hr />
+
         <p>Pledge: @Model.Pledge.Id</p>
 
         <p>Original @Model.Pledge.OriginalPledge, now @Model.Pledge.CurrentPledge</p>

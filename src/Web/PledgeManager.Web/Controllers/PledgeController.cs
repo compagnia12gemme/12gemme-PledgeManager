@@ -64,6 +64,7 @@ namespace PledgeManager.Web.Controllers {
 
             var rewardMap = c.Rewards.ToDictionary(reward => reward.Code);
             var addonMap = c.AddOns.ToDictionary(addon => addon.Code);
+            var originalReward = rewardMap[pledge.OriginalRewardLevel];
             var currentReward = rewardMap[pledge.CurrentRewardLevel];
 
             var finalCost = currentReward.PledgeBase + (from addon in pledge.AddOns
@@ -77,7 +78,7 @@ namespace PledgeManager.Web.Controllers {
                 AddOns = from addon in pledge.AddOns
                          let campaignAddon = addonMap[addon.Code]
                          select (campaignAddon, addon.Count, addon.Variant),
-                UpgradePaths = from upgrade in currentReward.UpgradePaths
+                UpgradePaths = from upgrade in originalReward.FullUpgradePaths
                                let campaignUpgrade = rewardMap[upgrade]
                                let upgradeDifference = campaignUpgrade.PledgeBase - currentReward.PledgeBase
                                select (campaignUpgrade, upgradeDifference),
@@ -88,6 +89,7 @@ namespace PledgeManager.Web.Controllers {
             return View("Show", vm);
         }
 
+        [HttpPost]
         public async Task<IActionResult> UpdateShipping(
             [FromRoute] string campaign,
             [FromRoute] int userId,
@@ -115,6 +117,33 @@ namespace PledgeManager.Web.Controllers {
 
             return RedirectToAction(nameof(Index), new {
                 campaign, userId, token
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateReward(
+            [FromRoute] string campaign,
+            [FromRoute] int userId,
+            [FromRoute] string token,
+            [FromForm] string rewardCode
+        ) {
+            (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
+            if (ret != null) {
+                return ret;
+            }
+
+            if(!c.Rewards.Any(r => r.Code == rewardCode)) {
+                return Content("Reward code does not exist");
+            }
+
+            pledge.CurrentRewardLevel = rewardCode;
+            pledge.LastUpdate = DateTime.UtcNow;
+            await _database.UpdatePledge(pledge);
+
+            return RedirectToAction(nameof(Index), new {
+                campaign,
+                userId,
+                token
             });
         }
 
