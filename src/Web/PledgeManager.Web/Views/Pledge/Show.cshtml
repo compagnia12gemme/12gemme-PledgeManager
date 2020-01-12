@@ -1,4 +1,5 @@
 ﻿@model PledgeManager.Web.ViewModels.PledgeShowViewModel
+@using CommonMark
 @{
     ViewData["Title"] = "Gestione offerta";
     ViewData["CoverUrl"] = Model.Campaign.CoverUrl;
@@ -67,7 +68,7 @@
                                 </span>
                             }
                         </div>
-                        <p class="mb-1">@upgrade.Reward.Description</p>
+                        @Html.Raw(CommonMarkConverter.Convert(upgrade.Reward.Description))
                         @if (upgrade.UpgradeCost < 0M) {
                             <button type="submit" class="btn btn-danger btn-sm">Seleziona ricompensa</button>
                         }
@@ -95,8 +96,9 @@
                 <div class="list-group-item list-group-item-action flex-column align-items-start">
                     <form action="@Url.Action("AddAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
                         <h5 class="mb-1">@addon.AddOn.Title</h5>
+                        @Html.Raw(CommonMarkConverter.Convert(addon.AddOn.Description))
                         @if (addon.Variant != null) {
-                            <p><small>Variant: @addon.Variant</small></p>
+                            <p><small>Variante: @addon.Variant</small></p>
                         }
                         <button type="submit" class="btn btn-danger btn-sm">Rimuovi</button>
                     </form>
@@ -119,12 +121,12 @@
                                 + @addon.Cost.ToString("F1") €
                             </span>
                         </div>
-                        <p class="mb-1">@addon.Description</p>
-                        @if(addon.Variants != null) {
+                        @Html.Raw(CommonMarkConverter.Convert(addon.Description))
+                        @if (addon.Variants != null) {
                             <p>
                                 Varianti:
                                 <select name="variant" class="form-control">
-                                    @foreach(var variant in addon.Variants) {
+                                    @foreach (var variant in addon.Variants) {
                                         <option value="@variant">@variant</option>
                                     }
                                 </select>
