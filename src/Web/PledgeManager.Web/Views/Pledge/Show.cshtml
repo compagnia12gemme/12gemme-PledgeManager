@@ -94,7 +94,10 @@
             <div class="list-group">
                 @foreach (var addon in Model.AddOns) {
                 <div class="list-group-item list-group-item-action flex-column align-items-start">
-                    <form action="@Url.Action("AddAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                    <form action="@Url.Action("RemoveAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                        <input type="hidden" name="addonCode" value="@addon.AddOn.Code" />
+                        <input type="hidden" name="variant" value="@addon.Variant" />
+
                         <h5 class="mb-1">@addon.AddOn.Title</h5>
                         @Html.Raw(CommonMarkConverter.Convert(addon.AddOn.Description))
                         @if (addon.Variant != null) {

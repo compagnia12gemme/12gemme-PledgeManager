@@ -193,6 +193,37 @@ namespace PledgeManager.Web.Controllers {
             });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> RemoveAddOn(
+            [FromRoute] string campaign,
+            [FromRoute] int userId,
+            [FromRoute] string token,
+            [FromForm] string addonCode,
+            [FromForm] string variant
+        ) {
+            (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
+            if (ret != null) {
+                return ret;
+            }
+
+            var addon = (from a in pledge.AddOns
+                         where a.Code == addonCode && (variant == null || variant == a.Variant)
+                         select a).FirstOrDefault();
+            if(addon == null) {
+                return Content("Addon is not in pledge and cannot be removed");
+            }
+            
+            pledge.AddOns.Remove(addon);
+            pledge.LastUpdate = DateTime.UtcNow;
+            await _database.UpdatePledge(pledge);
+
+            return RedirectToAction(nameof(Index), new {
+                campaign,
+                userId,
+                token
+            });
+        }
+
     }
 
 }
