@@ -62,22 +62,41 @@ namespace PledgeManager.Web.Controllers {
                 return ret;
             }
 
+            // Rapid access reward and add-on maps
             var rewardMap = c.Rewards.ToDictionary(reward => reward.Code);
             var addonMap = c.AddOns.ToDictionary(addon => addon.Code);
+
+            // Pick rewards
             var originalReward = rewardMap[pledge.OriginalRewardLevel];
             var currentReward = rewardMap[pledge.CurrentRewardLevel];
 
+            // Compute final total cost of pledge
             var finalCost = currentReward.PledgeBase + (from addon in pledge.AddOns
                                                         let campaignAddon = addonMap[addon.Code]
                                                         select campaignAddon.Cost).Sum();
+
+            // Compute rapid access hashmap of excluded add-ons that cannot be added
+            var addedAddOns = from addon in pledge.AddOns
+                              let campaignAddon = addonMap[addon.Code]
+                              select (campaignAddon, addon.Variant);
+            var excludedAddOnCodes = new HashSet<string>();
+            foreach(var (addon, _) in addedAddOns) {
+                if(!addon.MultipleEnabled) {
+                    excludedAddOnCodes.Add(addon.Code);
+                }
+                if(addon.Excludes != null) {
+                    excludedAddOnCodes.UnionWith(addon.Excludes);
+                }
+            }
 
             var vm = new PledgeShowViewModel {
                 Campaign = c,
                 Pledge = pledge,
                 CurrentReward = currentReward,
-                AddOns = from addon in pledge.AddOns
-                         let campaignAddon = addonMap[addon.Code]
-                         select (campaignAddon, addon.Variant),
+                AddedAddOns = addedAddOns,
+                AvailableAddOns = from addon in c.AddOns
+                                  where !excludedAddOnCodes.Contains(addon.Code)
+                                  select addon,
                 UpgradePaths = from upgrade in originalReward.FullUpgradePaths
                                let campaignUpgrade = rewardMap[upgrade]
                                let upgradeDifference = campaignUpgrade.PledgeBase - currentReward.PledgeBase

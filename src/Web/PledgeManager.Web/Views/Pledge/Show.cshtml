@@ -87,12 +87,12 @@
 
         <h3>Articoli aggiuntivi / Add-ons</h3>
 
-        @if (Model.AddOns.Count() == 0) {
+        @if (Model.AddedAddOns.Count() == 0) {
             <p>Nessun articolo aggiuntivo / no add-ons selected.</p>
         }
         else {
             <div class="list-group">
-                @foreach (var addon in Model.AddOns) {
+                @foreach (var addon in Model.AddedAddOns) {
                 <div class="list-group-item list-group-item-action flex-column align-items-start">
                     <form action="@Url.Action("RemoveAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
                         <input type="hidden" name="addonCode" value="@addon.AddOn.Code" />
@@ -113,7 +113,7 @@
         <h4>Aggiungi…</h4>
 
         <div class="list-group">
-            @foreach (var addon in Model.Campaign.AddOns) {
+            @foreach (var addon in Model.AvailableAddOns) {
                 <div class="list-group-item list-group-item-action flex-column align-items-start">
                     <form action="@Url.Action("AddAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
                         <input type="hidden" name="addonCode" value="@addon.Code" />

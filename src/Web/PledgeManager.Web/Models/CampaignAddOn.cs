@@ -30,6 +30,11 @@ namespace PledgeManager.Web.Models {
         [BsonIgnoreIfNull]
         public string[] Variants { get; set; } = null;
 
+        [BsonElement("excludes", Order = 7)]
+        [BsonDefaultValue(null)]
+        [BsonIgnoreIfNull]
+        public string[] Excludes { get; set; } = null;
+
     }
 
 }

@@ -14,7 +14,9 @@ namespace PledgeManager.Web.ViewModels {
 
         public CampaignReward CurrentReward { get; set; }
 
-        public IEnumerable<(CampaignAddOn AddOn, string Variant)> AddOns { get; set; }
+        public IEnumerable<(CampaignAddOn AddOn, string Variant)> AddedAddOns { get; set; }
+
+        public IEnumerable<CampaignAddOn> AvailableAddOns { get; set; }
 
         public IEnumerable<(CampaignReward Reward, decimal UpgradeCost)> UpgradePaths { get; set; }
 
