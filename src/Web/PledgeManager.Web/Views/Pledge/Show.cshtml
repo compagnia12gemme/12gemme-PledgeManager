@@ -93,19 +93,19 @@
         else {
             <div class="list-group">
                 @foreach (var addon in Model.AddedAddOns) {
-                <div class="list-group-item list-group-item-action flex-column align-items-start">
-                    <form action="@Url.Action("RemoveAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
-                        <input type="hidden" name="addonCode" value="@addon.AddOn.Code" />
-                        <input type="hidden" name="variant" value="@addon.Variant" />
+                    <div class="list-group-item list-group-item-action flex-column align-items-start">
+                        <form action="@Url.Action("RemoveAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                            <input type="hidden" name="addonCode" value="@addon.AddOn.Code" />
+                            <input type="hidden" name="variant" value="@addon.Variant" />
 
-                        <h5 class="mb-1">@addon.AddOn.Title</h5>
-                        @Html.Raw(CommonMarkConverter.Convert(addon.AddOn.Description))
-                        @if (addon.Variant != null) {
-                            <p><small>Variante: @addon.Variant</small></p>
-                        }
-                        <button type="submit" class="btn btn-danger btn-sm">Rimuovi</button>
-                    </form>
-                </div>
+                            <h5 class="mb-1">@addon.AddOn.Title</h5>
+                            @Html.Raw(CommonMarkConverter.Convert(addon.AddOn.Description))
+                            @if (addon.Variant != null) {
+                                <p><small>Variante: @addon.Variant</small></p>
+                            }
+                            <button type="submit" class="btn btn-danger btn-sm">Rimuovi</button>
+                        </form>
+                    </div>
                 }
             </div>
         }
@@ -145,7 +145,77 @@
 
         <h3>Quasi fatto / Almost done</h3>
 
+        <div class="row totals">
+            <div class="col-6">
+                <h5>La tua offerta</h5>
+                <p class="sum text-success">@Model.Pledge.CurrentPledge.ToString("F1")&nbsp;€</p>
+            </div>
+            <div class="col-6">
+                <h5>Costo finale</h5>
+                <p class="sum @((Model.CanBeClosed) ? "text-success" : "text-warning")">@Model.FinalCost.ToString("F1")&nbsp;€</p>
+            </div>
+        </div>
 
+        @if (Model.CanBeClosed) {
+            
+            <p>Se la ricompensa selezionata sopra ti soddisfa, la tua offerta per la campagna <b>@Model.Campaign.Title</b> può essere chiusa.</p>
+            <p>Una volta chiusa, l’<b>offerta non potrà più essere modificata</b>.</p>
 
+            <hr />
+
+            <form action="@Url.Action("ClosePledge", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+
+                <div class="form-group">
+                    <label for="pledgeNotes">Note e commenti</label>
+                    <textarea class="form-control" id="pledgeNotes" name="pledgeNotes" rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-lg">Finalizza offerta!</button>
+                </div>
+
+            </form>
+
+        }
+        else {
+
+            <p>Il corrispettivo finale per la ricompensa selezionata è superiore alla tua offerta. Puoi integrare l’offerta direttamente tramite <b>PayPal</b> o <b>carta di credito</b> utilizzando i pulsanti qui sotto.</p>
+
+            <div class="finalize">
+                <div id="paypal-button-container"></div>
+            </div>
+            <script>
+paypal.Buttons({
+    createOrder: function(data, actions) {
+        return actions.order.create({
+            purchase_units: [
+                {
+                    amount: {
+                        value: '@((Model.FinalCost - Model.Pledge.CurrentPledge).ToString("F2"))',
+                        currency_code: 'EUR'
+                    }
+                }
+            ]
+        });
+    },
+    onApprove: function(data, actions) {
+        return actions.order.capture().then(function (details) {
+            console.log('Order ' + data.orderID + ' completed by payer ID' + details.payer.payer_id + ' (' + details.payer.name.given_name + ' ' + details.payer.name.surname + ')');
+
+            return fetch('@Url.Action("ProcessPayment", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })', {
+                method: 'post',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    orderId: data.orderID
+                })
+            });
+        });
+    }
+ }).render('#paypal-button-container');
+            </script>
+
+        }
     </div>
 </div>

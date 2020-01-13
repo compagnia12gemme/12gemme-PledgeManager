@@ -18,8 +18,8 @@ namespace PledgeManager.Web {
             _logger = logger;
         }
 
-        private static readonly object _lockRoot = new object();
-        private static MongoClient _client = null;
+        private readonly object _lockRoot = new object();
+        private MongoClient _client = null;
 
         private MongoClient Client {
             get {

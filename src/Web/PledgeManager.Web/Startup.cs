@@ -23,7 +23,8 @@ namespace PledgeManager.Web {
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllersWithViews();
 
-            services.AddTransient(typeof(MongoDatabase));
+            services.AddSingleton(typeof(MongoDatabase));
+            services.AddSingleton(typeof(PayPalManager));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -66,6 +66,19 @@ namespace PledgeManager.Web.Models {
         [BsonElement("updates")]
         public List<PledgeUpdate> Updates { get; set; } = new List<PledgeUpdate>();
 
+        [BsonElement("payments")]
+        [BsonIgnoreIfDefault]
+        public List<PledgePayment> Payments { get; set; } = new List<PledgePayment>();
+
+        [BsonElement("note")]
+        [BsonIgnoreIfDefault]
+        public string Note { get; set; }
+
+        [BsonElement("closed")]
+        [BsonDefaultValue(false)]
+        [BsonIgnoreIfDefault]
+        public bool IsClosed { get; set; } = false;
+
         [BsonExtraElements]
         public BsonDocument CatchAll { get; set; }
 

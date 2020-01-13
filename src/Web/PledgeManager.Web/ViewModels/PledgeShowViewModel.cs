@@ -20,9 +20,13 @@ namespace PledgeManager.Web.ViewModels {
 
         public IEnumerable<(CampaignReward Reward, decimal UpgradeCost)> UpgradePaths { get; set; }
 
-        public decimal FinalCost;
+        public decimal FinalCost { get; set; }
 
-        public bool CanBeClosed;
+        public bool CanBeClosed {
+            get {
+                return Pledge.CurrentPledge >= FinalCost;
+            }
+        }
 
     }
 
