@@ -62,12 +62,43 @@ footer {
     font-size: inherit;
 }
 
+.scroll-container {
+    position: relative;
+}
+
 .totals {
+    position: sticky;
+    top: 0px;
     margin-top: 2em;
     text-align: center;
     align-items: end;
+    background-color: white;
+    z-index: 1000;
+    border-radius: 0 0 1em 1em;
+    box-shadow: 0 2rem 2rem rgba(0,0,0,.075);
+    border-bottom: solid 3px #DDD;
+    padding: 1em 0.5em 0.5em 0.5em;
 }
+.totals table {
+    width: 100%;
+}
+
 .totals .sum {
-    font-size: 2.2rem;
+    font-size: 1.2rem;
     font-weight: 600;
+}
+.totals tr {
+    font-size: 0.8rem;
+    font-weight: normal;
+}
+.totals .operand {
+    font-weight: 600;
+}
+@media (min-width: var(--breakpoint-sm)) {
+    .totals .sum {
+        font-size: 2.2rem;
+    }
+    .totals tr {
+        font-size: 1.25rem;
+    }
 }

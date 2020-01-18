@@ -15,156 +15,171 @@
 <div class="row">
     <div class="col-12 col-lg-8 offset-lg-2 col-xl-6 offset-xl-3">
 
-        <h3 id="shipping">Spedizione / Shipping</h3>
-
-        @using (Html.BeginForm("UpdateShipping", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })) {
-            <div class="form-group">
-                <label for="inputShippingAddress">Indirizzo / Address</label>
-                <input type="text" class="form-control" name="inputShippingAddress" id="inputShippingAddress" placeholder="Via dei Dodici, 12" value="@Model.Pledge?.Shipping?.Address" />
+        <div class="scroll-container">
+            <div class="row totals">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Totale aggiornato</th>
+                            <th></th>
+                            <th scope="col">Già pagato</th>
+                            <th></th>
+                            <th scope="col">Rimanente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="sum text-primary">
+                                @Model.FinalCost.ToString("F1")&nbsp;€
+                            </td>
+                            <td class="operand">
+                                &minus;
+                            </td>
+                            <td class="sum text-secondary">
+                                @Model.Pledge.CurrentPledge.ToString("F1")&nbsp;€
+                            </td>
+                            <td class="operand">
+                                =
+                            </td>
+                            <td class="sum @((Model.CanBeClosed) ? "text-success" : "text-warning")">
+                                @(Model.ToPay.ToString("F1"))&nbsp;€
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="form-row">
-                <div class="form-group col-sm-3">
-                    <label for="inputShippingZip">CAP / ZIP</label>
-                    <input type="text" class="form-control" name="inputShippingZip" id="inputShippingZip" value="@Model.Pledge?.Shipping?.ZipCode" />
+            <h3 id="shipping">Spedizione</h3>
+
+            @using (Html.BeginForm("UpdateShipping", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })) {
+                <div class="form-group">
+                    <label for="inputShippingAddress">Indirizzo</label>
+                    <input type="text" class="form-control" name="inputShippingAddress" id="inputShippingAddress" placeholder="Via dei Dodici, 12" value="@Model.Pledge?.Shipping?.Address" />
                 </div>
-                <div class="form-group col-sm-6">
-                    <label for="inputShippingCity">Città / City</label>
-                    <input type="text" class="form-control" name="inputShippingCity" id="inputShippingCity" value="@Model.Pledge?.Shipping?.City" />
+
+                <div class="form-row">
+                    <div class="form-group col-sm-3">
+                        <label for="inputShippingZip">CAP</label>
+                        <input type="text" class="form-control" name="inputShippingZip" id="inputShippingZip" value="@Model.Pledge?.Shipping?.ZipCode" />
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="inputShippingCity">Città</label>
+                        <input type="text" class="form-control" name="inputShippingCity" id="inputShippingCity" value="@Model.Pledge?.Shipping?.City" />
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label for="inputShippingProvince">Prov.</label>
+                        <input type="text" class="form-control" name="inputShippingProvince" id="inputShippingProvince" value="@Model.Pledge?.Shipping?.Province" />
+                    </div>
                 </div>
-                <div class="form-group col-sm-3">
-                    <label for="inputShippingProvince">Prov. / State</label>
-                    <input type="text" class="form-control" name="inputShippingProvince" id="inputShippingProvince" value="@Model.Pledge?.Shipping?.Province" />
+
+                <div class="form-group">
+                    <label for="inputShippingCountry">Paese</label>
+                    <input type="text" class="form-control" name="inputShippingCountry" id="inputShippingCountry" placeholder="Italia" value="@Model.Pledge?.Shipping?.Country" />
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="inputShippingCountry">Paese / Country</label>
-                <input type="text" class="form-control" name="inputShippingCountry" id="inputShippingCountry" placeholder="Italia" value="@Model.Pledge?.Shipping?.Country" />
-            </div>
-
-            <button type="submit" class="btn btn-primary">Aggiorna indirizzo</button>
-        }
-
-        <hr />
-
-        <h3 id="reward">Ricompensa / Reward</h3>
-
-        <div class="list-group">
-            @foreach (var upgrade in Model.UpgradePaths) {
-                var additionalClass = (upgrade.Reward.Code == Model.CurrentReward.Code) ? "active" : "";
-
-                <div class="list-group-item list-group-item-action flex-column align-items-start @additionalClass">
-                    <form action="@Url.Action("UpdateReward", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
-                        <input type="hidden" name="rewardCode" value="@upgrade.Reward.Code" />
-
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">@upgrade.Reward.Title</h5>
-                            @if (upgrade.UpgradeCost != 0M) {
-                                <span class="badge badge-warning">
-                                    @((upgrade.UpgradeCost > 0) ? "+" : "-")
-                                    @Math.Abs(upgrade.UpgradeCost).ToString("F1")
-                                    €
-                                </span>
-                            }
-                        </div>
-                        @Html.Raw(CommonMarkConverter.Convert(upgrade.Reward.Description))
-                        @if (upgrade.UpgradeCost < 0M) {
-                            <button type="submit" class="btn btn-danger btn-sm">Seleziona ricompensa</button>
-                        }
-                        else if (upgrade.UpgradeCost > 0M) {
-                            <button type="submit" class="btn btn-success btn-sm">Seleziona ricompensa</button>
-                        }
-                        else {
-                            <button type="submit" class="btn btn-secondary btn-sm" disabled>Seleziona ricompensa</button>
-                        }
-                    </form>
-                </div>
+                <button type="submit" class="btn btn-primary">Aggiorna indirizzo</button>
             }
-        </div>
 
-        <hr />
+            <hr />
 
-        <h3 id="addons">Articoli aggiuntivi / Add-ons</h3>
+            <h3 id="reward">Ricompensa</h3>
 
-        @if (Model.AddedAddOns.Count() == 0) {
-            <p>Nessun articolo aggiuntivo / no add-ons selected.</p>
-        }
-        else {
             <div class="list-group">
-                @foreach (var addon in Model.AddedAddOns) {
-                    <div class="list-group-item list-group-item-action flex-column align-items-start">
-                        <form action="@Url.Action("RemoveAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
-                            <input type="hidden" name="addonCode" value="@addon.AddOn.Code" />
-                            <input type="hidden" name="variant" value="@addon.Variant" />
+                @foreach (var upgrade in Model.UpgradePaths) {
+                    var additionalClass = (upgrade.Reward.Code == Model.CurrentReward.Code) ? "active" : "";
 
-                            <h5 class="mb-1">@addon.AddOn.Title</h5>
-                            @Html.Raw(CommonMarkConverter.Convert(addon.AddOn.Description))
-                            @if (addon.Variant != null) {
-                                <p><small>Variante: @addon.Variant</small></p>
+                    <div class="list-group-item list-group-item-action flex-column align-items-start @additionalClass">
+                        <form action="@Url.Action("UpdateReward", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                            <input type="hidden" name="rewardCode" value="@upgrade.Reward.Code" />
+
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">@upgrade.Reward.Title</h5>
+                                @if (upgrade.UpgradeCost != 0M) {
+                                    <span class="badge badge-warning">
+                                        @((upgrade.UpgradeCost > 0) ? "+" : "-")
+                                        @Math.Abs(upgrade.UpgradeCost).ToString("F1")
+                                        €
+                                    </span>
+                                }
+                            </div>
+                            @Html.Raw(CommonMarkConverter.Convert(upgrade.Reward.Description))
+                            @if (upgrade.UpgradeCost < 0M) {
+                                <button type="submit" class="btn btn-danger btn-sm">Seleziona ricompensa</button>
                             }
-                            <button type="submit" class="btn btn-danger btn-sm">Rimuovi</button>
+                            else if (upgrade.UpgradeCost > 0M) {
+                                <button type="submit" class="btn btn-success btn-sm">Seleziona ricompensa</button>
+                            }
+                            else {
+                                <button type="submit" class="btn btn-secondary btn-sm" disabled>Seleziona ricompensa</button>
+                            }
                         </form>
                     </div>
                 }
             </div>
-        }
 
-        <h4 id="addAddon">Aggiungi…</h4>
+            <hr />
 
-        <div class="list-group">
-            @foreach (var addon in Model.AvailableAddOns) {
-                <div class="list-group-item list-group-item-action flex-column align-items-start">
-                    <form action="@Url.Action("AddAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
-                        <input type="hidden" name="addonCode" value="@addon.Code" />
+            <h3 id="addons">Articoli aggiuntivi</h3>
 
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">@addon.Title</h5>
-                            <span class="badge badge-warning">
-                                + @addon.Cost.ToString("F1") €
-                            </span>
+            @if (Model.AddedAddOns.Count() == 0) {
+                <p>Nessun articolo aggiuntivo selezionato. 😔</p>
+            }
+            else {
+                <div class="list-group">
+                    @foreach (var addon in Model.AddedAddOns) {
+                        <div class="list-group-item list-group-item-action flex-column align-items-start">
+                            <form action="@Url.Action("RemoveAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                                <input type="hidden" name="addonCode" value="@addon.AddOn.Code" />
+                                <input type="hidden" name="variant" value="@addon.Variant" />
+
+                                <h5 class="mb-1">@addon.AddOn.Title</h5>
+                                @Html.Raw(CommonMarkConverter.Convert(addon.AddOn.Description))
+                                @if (addon.Variant != null) {
+                                    <p><small>Variante: @addon.Variant</small></p>
+                                }
+                                <button type="submit" class="btn btn-danger btn-sm">Rimuovi</button>
+                            </form>
                         </div>
-                        @Html.Raw(CommonMarkConverter.Convert(addon.Description))
-                        @if (addon.Variants != null) {
-                            <p>
-                                Varianti:
-                                <select name="variant" class="form-control">
-                                    @foreach (var variant in addon.Variants) {
-                                        <option value="@variant">@variant</option>
-                                    }
-                                </select>
-                            </p>
-                        }
-                        <button type="submit" class="btn btn-success btn-sm">Aggiungi</button>
-                    </form>
+                    }
                 </div>
             }
+
+            <h4 id="addAddon">Aggiungi…</h4>
+
+            <div class="list-group">
+                @foreach (var addon in Model.AvailableAddOns) {
+                    <div class="list-group-item list-group-item-action flex-column align-items-start">
+                        <form action="@Url.Action("AddAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                            <input type="hidden" name="addonCode" value="@addon.Code" />
+
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">@addon.Title</h5>
+                                <span class="badge badge-warning">
+                                    + @addon.Cost.ToString("F1") €
+                                </span>
+                            </div>
+                            @Html.Raw(CommonMarkConverter.Convert(addon.Description))
+                            @if (addon.Variants != null) {
+                                <p>
+                                    Varianti:
+                                    <select name="variant" class="form-control">
+                                        @foreach (var variant in addon.Variants) {
+                                            <option value="@variant">@variant</option>
+                                        }
+                                    </select>
+                                </p>
+                            }
+                            <button type="submit" class="btn btn-success btn-sm">Aggiungi</button>
+                        </form>
+                    </div>
+                }
+            </div>
+
+            <hr />
+
         </div>
 
-        <hr />
-
-        <h3>Quasi fatto / Almost done</h3>
-
-        <div class="row totals">
-            <div class="col-sm-4">
-                <h5>Totale aggiornato</h5>
-                <p class="sum text-primary">@Model.FinalCost.ToString("F1")&nbsp;€</p>
-            </div>
-            <div class="col-sm-1">
-                <p class="sum">&minus;</p>
-            </div>
-            <div class="col-sm-3">
-                <h5>Quanto hai già pagato</h5>
-                <p class="sum text-secondary">@Model.Pledge.CurrentPledge.ToString("F1")&nbsp;€</p>
-            </div>
-            <div class="col-sm-1">
-                <p class="sum">=</p>
-            </div>
-            <div class="col-sm-3">
-                <h5>Rimanente</h5>
-                <p class="sum @((Model.CanBeClosed) ? "text-success" : "text-warning")">@(Model.ToPay.ToString("F1"))</p>
-            </div>
-        </div>
+        <h3>Quasi fatto!</h3>
 
         @if (Model.CanBeClosed) {
             
@@ -193,7 +208,7 @@
         }
         else {
 
-            <p>Il corrispettivo finale per la ricompensa selezionata è superiore alla tua offerta. Puoi integrare l’offerta direttamente tramite <b>PayPal</b> o <b>carta di credito</b> utilizzando i pulsanti qui sotto.</p>
+            <p>Il corrispettivo finale per la ricompensa selezionata è superiore alla tua offerta. Puoi integrare l’offerta pagando <b>@(Model.ToPay.ToString("F1"))&nbsp;€</b> direttamente tramite <b>PayPal</b> o <b>carta di credito</b> utilizzando i pulsanti qui sotto.</p>
 
             <div class="finalize">
                 <div id="paypal-button-container"></div>
