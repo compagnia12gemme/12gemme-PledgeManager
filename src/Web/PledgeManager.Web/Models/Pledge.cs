@@ -79,6 +79,11 @@ namespace PledgeManager.Web.Models {
         [BsonIgnoreIfDefault]
         public bool IsClosed { get; set; } = false;
 
+        [BsonElement("acceptNewsletter")]
+        [BsonDefaultValue(false)]
+        [BsonIgnoreIfDefault]
+        public bool AcceptNewsletter { get; set; } = false;
+
         [BsonExtraElements]
         public BsonDocument CatchAll { get; set; }
 

@@ -261,7 +261,8 @@ namespace PledgeManager.Web.Controllers {
             [FromRoute] string campaign,
             [FromRoute] int userId,
             [FromRoute] string token,
-            [FromForm] string pledgeNotes
+            [FromForm] string pledgeNotes,
+            [FromForm] bool checkNewsletter
         ) {
             (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
             if (ret != null) {
@@ -269,6 +270,7 @@ namespace PledgeManager.Web.Controllers {
             }
 
             pledge.Note = pledgeNotes;
+            pledge.AcceptNewsletter = checkNewsletter;
             pledge.IsClosed = true;
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);

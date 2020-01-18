@@ -23,6 +23,9 @@ namespace PledgeManager.Web.Models {
         [BsonElement("description")]
         public string Description { get; set; }
 
+        [BsonElement("campaignLink")]
+        public string CampaignLink { get; set; }
+
         [BsonElement("terminatedOn")]
         [BsonDateTimeOptions(DateOnly = true, Kind = DateTimeKind.Unspecified)]
         public DateTime TerminatedOn { get; set; }
