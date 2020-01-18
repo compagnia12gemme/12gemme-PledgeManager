@@ -255,7 +255,7 @@ namespace PledgeManager.Web.Controllers {
                 campaign,
                 userId,
                 token
-            }, "addAddon");
+            }, "addons");
         }
 
         [HttpPost]
