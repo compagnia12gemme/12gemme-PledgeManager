@@ -22,6 +22,12 @@ namespace PledgeManager.Web.ViewModels {
 
         public decimal FinalCost { get; set; }
 
+        public decimal ToPay {
+            get {
+                return Math.Max(0M, FinalCost - Pledge.CurrentPledge);
+            }
+        }
+
         public bool CanBeClosed {
             get {
                 return Pledge.CurrentPledge >= FinalCost;

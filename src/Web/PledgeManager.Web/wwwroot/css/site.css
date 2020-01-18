@@ -65,8 +65,9 @@ footer {
 .totals {
     margin-top: 2em;
     text-align: center;
+    align-items: end;
 }
 .totals .sum {
-    font-size: 3rem;
+    font-size: 2.2rem;
     font-weight: 600;
 }
