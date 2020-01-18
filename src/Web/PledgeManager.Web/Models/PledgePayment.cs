@@ -19,7 +19,7 @@ namespace PledgeManager.Web.Models {
         [BsonElement("value")]
         public decimal Value { get; set; }
 
-            [BsonElement("timestamp")]
+        [BsonElement("timestamp")]
         [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
         public DateTime Timestamp { get; set; }
 
