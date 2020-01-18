@@ -145,11 +145,11 @@ namespace PledgeManager.Web.Controllers {
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
 
-            return RedirectToAction(nameof(Index), new {
+            return RedirectToAction(nameof(Index), "Pledge", new {
                 campaign,
                 userId,
                 token
-            });
+            }, "shipping");
         }
 
         [HttpPost]
@@ -172,11 +172,11 @@ namespace PledgeManager.Web.Controllers {
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
 
-            return RedirectToAction(nameof(Index), new {
+            return RedirectToAction(nameof(Index), "Pledge", new {
                 campaign,
                 userId,
                 token
-            });
+            }, "reward");
         }
 
         [HttpPost]
@@ -218,11 +218,11 @@ namespace PledgeManager.Web.Controllers {
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
 
-            return RedirectToAction(nameof(Index), new {
+            return RedirectToAction(nameof(Index), "Pledge", new {
                 campaign,
                 userId,
                 token
-            });
+            }, "addAddon");
         }
 
         [HttpPost]
@@ -249,11 +249,11 @@ namespace PledgeManager.Web.Controllers {
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
 
-            return RedirectToAction(nameof(Index), new {
+            return RedirectToAction(nameof(Index), "Pledge", new {
                 campaign,
                 userId,
                 token
-            });
+            }, "addons");
         }
 
         [HttpPost]

@@ -15,7 +15,7 @@
 <div class="row">
     <div class="col-12 col-lg-8 offset-lg-2 col-xl-6 offset-xl-3">
 
-        <h3>Spedizione / Shipping</h3>
+        <h3 id="shipping">Spedizione / Shipping</h3>
 
         @using (Html.BeginForm("UpdateShipping", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })) {
             <div class="form-group">
@@ -48,7 +48,7 @@
 
         <hr />
 
-        <h3>Ricompensa / Reward</h3>
+        <h3 id="reward">Ricompensa / Reward</h3>
 
         <div class="list-group">
             @foreach (var upgrade in Model.UpgradePaths) {
@@ -85,7 +85,7 @@
 
         <hr />
 
-        <h3>Articoli aggiuntivi / Add-ons</h3>
+        <h3 id="addons">Articoli aggiuntivi / Add-ons</h3>
 
         @if (Model.AddedAddOns.Count() == 0) {
             <p>Nessun articolo aggiuntivo / no add-ons selected.</p>
@@ -110,7 +110,7 @@
             </div>
         }
 
-        <h4>Aggiungi…</h4>
+        <h4 id="addAddon">Aggiungi…</h4>
 
         <div class="list-group">
             @foreach (var addon in Model.AvailableAddOns) {
