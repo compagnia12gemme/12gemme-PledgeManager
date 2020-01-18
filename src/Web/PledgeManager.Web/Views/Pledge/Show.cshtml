@@ -265,7 +265,10 @@ paypal.Buttons({
                     amount: {
                         value: '@(Model.ToPay.ToString("F2"))',
                         currency_code: 'EUR'
-                    }
+                    },
+                    description: 'Pledge to @(Model.Campaign.Title) campaign',
+                    invoice_id: 'PLDG/@(Model.Pledge.UserId)/@(Model.Pledge.Payments.Count+1)',
+                    soft_descriptor: '@(Model.Campaign.Code.ToUpperInvariant())'
                 }
             ]
         });
