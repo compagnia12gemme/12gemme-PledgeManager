@@ -239,7 +239,28 @@
                 </div>
 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-lg">Finalizza offerta!</button>
+                    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modalConfirmation">Finalizza offerta!</button>
+                </div>
+
+                <!-- Modal confirmation -->
+                <div class="modal fade" id="modalConfirmation" tabindex="-1" role="dialog" aria-labelledby="modalConfirmationCenterTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="modalConfirmationCenterTitle">Finalizza?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        Vuoi finalizzare il tuo contributo alla campagna e confermare la ricompensa selezionata? Non sarà possibile modificare ulteriormente la ricompensa.
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                        <button type="submit" class="btn btn-primary">Finalizza</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
             </form>
@@ -256,6 +277,7 @@
             <div class="finalize">
                 <div id="paypal-button-container"></div>
             </div>
+
             <script>
 paypal.Buttons({
     createOrder: function(data, actions) {
