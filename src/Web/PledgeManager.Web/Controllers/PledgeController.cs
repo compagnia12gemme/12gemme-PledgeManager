@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PledgeManager.Web.Models;
-using PledgeManager.Web.RequestModels;
 using PledgeManager.Web.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -18,6 +17,7 @@ namespace PledgeManager.Web.Controllers {
         private readonly ILogger<PledgeController> _logger;
 
         private const string TempKeyPaymentConfirmation = "TempRedirectPaymentData";
+        private const string TempKeyErrorNotification = "TempRedirectErrorNotification";
 
         public PledgeController(
             MongoDatabase database,
@@ -60,6 +60,14 @@ namespace PledgeManager.Web.Controllers {
             }
 
             return (c, pledge, null);
+        }
+
+        private IActionResult ShowError(string message) {
+            this.AddToTemp(TempKeyErrorNotification, new ErrorNotification {
+                Message = message
+            });
+
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Index(
@@ -129,6 +137,7 @@ namespace PledgeManager.Web.Controllers {
 
             // Fetch redirect temp data
             vm.ConfirmedPayment = this.FromTemp<ConfirmedPayment>(TempKeyPaymentConfirmation);
+            vm.Error = this.FromTemp<ErrorNotification>(TempKeyErrorNotification);
 
             _logger.LogTrace("Pledge view ready to show");
 
@@ -185,7 +194,8 @@ namespace PledgeManager.Web.Controllers {
             }
 
             if (!c.Rewards.Any(r => r.Code == rewardCode)) {
-                return Content("Reward code does not exist");
+                _logger.LogError("Selected reward level '{0}' does not exist", rewardCode);
+                return ShowError("Selected reward level does not exist.");
             }
 
             pledge.CurrentRewardLevel = rewardCode;
@@ -214,11 +224,13 @@ namespace PledgeManager.Web.Controllers {
 
             var addon = c.AddOns.Where(a => a.Code == addonCode).SingleOrDefault();
             if (addon == null) {
-                return Content("AddOn code does not exist");
+                _logger.LogError("Selected add-on '{0}' does not exist", addonCode);
+                return ShowError("Selected add-on does not exist.");
             }
             if (addon.Variants != null) {
                 if (!addon.Variants.Any(v => v == variant)) {
-                    return Content("AddOn requires variant but no valid variant code supplied");
+                    _logger.LogError("Selected add-on '{0}' does require variant but none given");
+                    return ShowError("Selected add-on requires a variant, but no variant indicator given.");
                 }
             }
             else {
@@ -228,7 +240,8 @@ namespace PledgeManager.Web.Controllers {
 
             var existingCount = pledge.AddOns.Where(a => a.Code == addonCode).Count();
             if (existingCount > 0 && !addon.MultipleEnabled) {
-                return Content("Cannot add multiple addons with code {0}", addonCode);
+                _logger.LogError("Cannot add multiple add-ons '{0}'", addonCode);
+                return ShowError("Cannot add multiple instances of selected add-on.");
             }
 
             pledge.AddOns.Add(new PledgeAddOn {
@@ -262,7 +275,8 @@ namespace PledgeManager.Web.Controllers {
                          where a.Code == addonCode && (variant == null || variant == a.Variant)
                          select a).FirstOrDefault();
             if (addon == null) {
-                return Content("Addon is not in pledge and cannot be removed");
+                _logger.LogError("Addon '{0}' not present in pledge, cannot be removed", addonCode);
+                return ShowError("Selected add-on not present, cannot be removed.");
             }
 
             pledge.AddOns.Remove(addon);
@@ -321,14 +335,14 @@ namespace PledgeManager.Web.Controllers {
             var response = await _paypal.Client.Execute(reqOrder);
             if(response.StatusCode != HttpStatusCode.OK) {
                 _logger.LogError("Failed to fetch order ID {0}, request status {1}", paymentOrderId, response.StatusCode);
-                return Content("Failed to fetch order from PayPal");
+                return ShowError($"Failed to fetch order ID {paymentOrderId} status from PayPal. Contact support.");
             }
             var order = response.Result<PayPalCheckoutSdk.Orders.Order>();
             _logger.LogInformation("Order ID {0} retrieved with status {1}", paymentOrderId, order.Status);
 
             if(!"COMPLETED".Equals(order.Status, StringComparison.InvariantCultureIgnoreCase)) {
-                _logger.LogWarning("Order ID {0} not marked as completed", paymentOrderId);
-                return Content("Order not completed");
+                _logger.LogError("Order ID {0} not completed, marked as {1}", paymentOrderId, order.Status);
+                return ShowError($"Order ID {paymentOrderId} is not marked as completed. Contact support.");
             }
 
             decimal total = 0M;
@@ -340,7 +354,7 @@ namespace PledgeManager.Web.Controllers {
                     continue;
                 }
                 if(!decimal.TryParse(pu.AmountWithBreakdown.Value, out decimal purchaseValue)) {
-                    _logger.LogError("Cannot parse purchase unit value {0}", pu.AmountWithBreakdown.Value);
+                    _logger.LogError("Cannot parse purchase unit value {0} {1}", pu.AmountWithBreakdown.Value, pu.AmountWithBreakdown.CurrencyCode);
                     continue;
                 }
                 total += purchaseValue;

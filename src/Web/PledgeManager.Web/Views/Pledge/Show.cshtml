@@ -14,6 +14,12 @@
 
 <div class="row">
     <div class="col-12 col-lg-8 offset-lg-2 col-xl-6 offset-xl-3">
+        @if (Model.Error != null) {
+            <div class="alert alert-danger" role="alert">
+                @Model.Error.Message
+            </div>
+        }
+
         <h1>La tua offerta</h1>
 
         <p>Questo è il “pledge manager” della tua offerta alla campagna di crowdfunding de <a href="@Model.Campaign.CampaignLink" target="_blank">@Model.Campaign.Title</a>, terminata il @Model.Campaign.TerminatedOn.ToShortDateString().</p>
