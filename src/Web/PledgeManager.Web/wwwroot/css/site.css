@@ -10,6 +10,10 @@ b, strong {
     font-weight: 600;
 }
 
+.top-break {
+    margin-top: 2em;
+}
+
 .main-container {
     display: flex;
     min-height: 100vh;
@@ -103,4 +107,8 @@ footer {
     .totals tr {
         font-size: 1.25rem;
     }
+}
+
+.order-summary {
+    margin-bottom: 1em;
 }

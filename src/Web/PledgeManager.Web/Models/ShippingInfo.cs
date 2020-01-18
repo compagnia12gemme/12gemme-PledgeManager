@@ -8,19 +8,25 @@ namespace PledgeManager.Web.Models {
     
     public class ShippingInfo {
 
-        [BsonElement("address", Order = 1)]
+        [BsonElement("name", Order = 1)]
+        public string Name { get; set; }
+
+        [BsonElement("address", Order = 2)]
         public string Address { get; set; }
 
-        [BsonElement("zipCode", Order = 2)]
+        [BsonElement("addressSecundary", Order = 3)]
+        public string AddressSecundary { get; set; }
+
+        [BsonElement("zipCode", Order = 4)]
         public string ZipCode { get; set; }
 
-        [BsonElement("city", Order = 3)]
+        [BsonElement("city", Order = 5)]
         public string City { get; set; }
 
-        [BsonElement("province", Order = 4)]
+        [BsonElement("province", Order = 6)]
         public string Province { get; set; }
 
-        [BsonElement("country", Order = 5)]
+        [BsonElement("country", Order = 7)]
         public string Country { get; set; }
 
     }

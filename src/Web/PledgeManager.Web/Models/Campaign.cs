@@ -34,6 +34,9 @@ namespace PledgeManager.Web.Models {
         [BsonIgnoreIfDefault]
         public string CoverUrl { get; set; }
 
+        [BsonElement("supportMail")]
+        public string SupportEmailAddress { get; set; }
+
         [BsonElement("rewards")]
         public List<CampaignReward> Rewards { get; set; } = new List<CampaignReward>();
 

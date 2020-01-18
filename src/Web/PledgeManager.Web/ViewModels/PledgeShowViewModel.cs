@@ -34,6 +34,8 @@ namespace PledgeManager.Web.ViewModels {
             }
         }
 
+        public ConfirmedPayment ConfirmedPayment { get; set; }
+
     }
 
 }

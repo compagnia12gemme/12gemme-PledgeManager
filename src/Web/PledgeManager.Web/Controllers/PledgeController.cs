@@ -17,6 +17,8 @@ namespace PledgeManager.Web.Controllers {
         private readonly PayPalManager _paypal;
         private readonly ILogger<PledgeController> _logger;
 
+        private const string TempKeyPaymentConfirmation = "TempRedirectPaymentData";
+
         public PledgeController(
             MongoDatabase database,
             PayPalManager paypal,
@@ -46,7 +48,7 @@ namespace PledgeManager.Web.Controllers {
         private async Task<(Campaign, Pledge, IActionResult)> GetPledgeAndVerify(
             string campaign, int userId, string token) {
 
-            _logger.LogInformation("Loading pledge information for campaign {0} and user {1}", campaign, userId);
+            _logger.LogDebug("Loading pledge information for campaign {0} and user {1}", campaign, userId);
 
             (var c, var pledge) = await GetPledge(campaign, userId);
             if (c == null || pledge == null) {
@@ -70,17 +72,29 @@ namespace PledgeManager.Web.Controllers {
                 return ret;
             }
 
-            if(pledge.IsClosed) {
-                return View("ShowClosed");
-            }
-
             // Rapid access reward and add-on maps
             var rewardMap = c.Rewards.ToDictionary(reward => reward.Code);
             var addonMap = c.AddOns.ToDictionary(addon => addon.Code);
+            var addedAddOns = from addon in pledge.AddOns
+                              let campaignAddon = addonMap[addon.Code]
+                              select (campaignAddon, addon.Variant);
 
             // Pick rewards
             var originalReward = rewardMap[pledge.OriginalRewardLevel];
             var currentReward = rewardMap[pledge.CurrentRewardLevel];
+
+            if (pledge.IsClosed) {
+                _logger.LogDebug("Showing closed pledge for campaign {0} and user {1}", campaign, userId);
+
+                return View("ShowClosed", new PledgeClosedViewModel {
+                    Campaign = c,
+                    Pledge = pledge,
+                    CurrentReward = currentReward,
+                    AddedAddOns = addedAddOns
+                });
+            }
+
+            _logger.LogDebug("Showing open pledge for campaign {0} and user {1}", campaign, userId);
 
             // Compute final total cost of pledge
             var finalCost = currentReward.PledgeBase + (from addon in pledge.AddOns
@@ -88,9 +102,6 @@ namespace PledgeManager.Web.Controllers {
                                                         select campaignAddon.Cost).Sum();
 
             // Compute rapid access hashmap of excluded add-ons that cannot be added
-            var addedAddOns = from addon in pledge.AddOns
-                              let campaignAddon = addonMap[addon.Code]
-                              select (campaignAddon, addon.Variant);
             var excludedAddOnCodes = new HashSet<string>();
             foreach (var (addon, _) in addedAddOns) {
                 if (!addon.MultipleEnabled) {
@@ -116,6 +127,11 @@ namespace PledgeManager.Web.Controllers {
                 FinalCost = finalCost
             };
 
+            // Fetch redirect temp data
+            vm.ConfirmedPayment = this.FromTemp<ConfirmedPayment>(TempKeyPaymentConfirmation);
+
+            _logger.LogTrace("Pledge view ready to show");
+
             return View("Show", vm);
         }
 
@@ -124,7 +140,9 @@ namespace PledgeManager.Web.Controllers {
             [FromRoute] string campaign,
             [FromRoute] int userId,
             [FromRoute] string token,
+            [FromForm] string inputShippingName,
             [FromForm] string inputShippingAddress,
+            [FromForm] string inputShippingAddressSecundary,
             [FromForm] string inputShippingZip,
             [FromForm] string inputShippingCity,
             [FromForm] string inputShippingProvince,
@@ -136,11 +154,13 @@ namespace PledgeManager.Web.Controllers {
             }
 
             pledge.Shipping = new ShippingInfo {
-                Address = inputShippingAddress,
-                ZipCode = inputShippingZip,
-                City = inputShippingCity,
-                Province = inputShippingProvince,
-                Country = inputShippingCountry
+                Name = inputShippingName?.Trim(),
+                Address = inputShippingAddress?.Trim(),
+                AddressSecundary = inputShippingAddressSecundary?.Trim(),
+                ZipCode = inputShippingZip?.Trim(),
+                City = inputShippingCity?.Trim(),
+                Province = inputShippingProvince?.Trim(),
+                Country = inputShippingCountry?.Trim()
             };
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
@@ -287,7 +307,7 @@ namespace PledgeManager.Web.Controllers {
             [FromRoute] string campaign,
             [FromRoute] int userId,
             [FromRoute] string token,
-            [FromBody] ProcessPaymentRequest paymentRequest
+            [FromForm] string paymentOrderId
         ) {
             (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
             if (ret != null) {
@@ -295,26 +315,26 @@ namespace PledgeManager.Web.Controllers {
             }
 
             _logger.LogInformation("Processing payment order ID {0} for campaign {1} user ID {2}",
-                paymentRequest.OrderId, campaign, userId);
+                paymentOrderId, campaign, userId);
 
-            var reqOrder = new PayPalCheckoutSdk.Orders.OrdersGetRequest(paymentRequest.OrderId);
+            var reqOrder = new PayPalCheckoutSdk.Orders.OrdersGetRequest(paymentOrderId);
             var response = await _paypal.Client.Execute(reqOrder);
             if(response.StatusCode != HttpStatusCode.OK) {
-                _logger.LogError("Failed to fetch order ID {0}, request status {1}", paymentRequest.OrderId, response.StatusCode);
+                _logger.LogError("Failed to fetch order ID {0}, request status {1}", paymentOrderId, response.StatusCode);
                 return Content("Failed to fetch order from PayPal");
             }
             var order = response.Result<PayPalCheckoutSdk.Orders.Order>();
-            _logger.LogInformation("Order ID {0} retrieved with status {1}", paymentRequest.OrderId, order.Status);
+            _logger.LogInformation("Order ID {0} retrieved with status {1}", paymentOrderId, order.Status);
 
             if(!"COMPLETED".Equals(order.Status, StringComparison.InvariantCultureIgnoreCase)) {
-                _logger.LogWarning("Order ID {0} not marked as completed", paymentRequest.OrderId);
+                _logger.LogWarning("Order ID {0} not marked as completed", paymentOrderId);
                 return Content("Order not completed");
             }
 
             decimal total = 0M;
             foreach(var pu in order.PurchaseUnits) {
-                _logger.LogDebug("Purchase unit {0}: {1} {2}",
-                    pu.Id, pu.AmountWithBreakdown.Value, pu.AmountWithBreakdown.CurrencyCode);
+                _logger.LogDebug("Purchase unit for {0} {1}",
+                    pu.AmountWithBreakdown.Value, pu.AmountWithBreakdown.CurrencyCode);
                 if(pu.AmountWithBreakdown.CurrencyCode != "EUR") {
                     _logger.LogWarning("Currency {0} not handled", pu.AmountWithBreakdown.CurrencyCode);
                     continue;
@@ -337,11 +357,16 @@ namespace PledgeManager.Web.Controllers {
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
 
-            return RedirectToAction(nameof(Index), new {
+            this.AddToTemp(TempKeyPaymentConfirmation, new ConfirmedPayment {
+                PaymentId = order.Id,
+                PaymentTotal = total
+            });
+
+            return RedirectToAction(nameof(Index), "Pledge", new {
                 campaign,
                 userId,
                 token
-            });
+            }, "done");
         }
 
     }

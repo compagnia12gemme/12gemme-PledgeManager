@@ -1,21 +1,41 @@
-﻿@model PledgeManager.Web.ViewModels.PledgeShowViewModel
+﻿@model PledgeManager.Web.ViewModels.PledgeClosedViewModel
 @using CommonMark
 @{
     ViewData["Title"] = "Gestione offerta";
-    ViewData["CoverUrl"] = null; // Model.Campaign.CoverUrl;
+    ViewData["CoverUrl"] = Model.Campaign.CoverUrl;
     Layout = "~/Views/Shared/Main.cshtml";
 }
 
 <div class="row">
     <div class="col-12 col-lg-8 offset-lg-2 col-xl-6 offset-xl-3">
-        <h1>La tua offerta</h1>
+        <h1>Offerta finalizzata</h1>
     </div>
 </div>
 
 <div class="row">
     <div class="col-12 col-lg-8 offset-lg-2 col-xl-6 offset-xl-3">
 
-        <p>Offerta chiusa, grazie!</p>
-        
+        <p>La tua offerta è stata finalizzata e correttamente registrata. Non resta altro che mettersi comodi ed aspettare. 😉</p>
+
+        <ul class="list-group order-summary">
+            <li class="list-group-item list-group-item-primary">
+                <b>@Model.CurrentReward.Title</b>
+            </li>
+            @foreach (var addon in Model.AddedAddOns) {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    @addon.AddOn.Title
+                    @if(addon.Variant != null) {
+                        <span class="badge badge-secondary">@addon.Variant</span>
+                    }
+                </li>
+            }
+        </ul>
+
+        <p>Di nuovo, grazie per il tuo supporto!</p>
+
+        <hr />
+
+        <p>Per qualsiasi dubbio o domanda, puoi <a href="mailto:@(Model.Campaign.SupportEmailAddress)?subject=Pledge @(Model.Pledge.UserId)">rivolgerti a noi via e-mail</a>, facendo riferimento al contributo <code>#@(Model.Pledge.UserId)</code>.</p>
+
     </div>
 </div>
