@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -35,6 +36,12 @@ namespace PledgeManager.Web {
             }
 
             app.UseStaticFiles();
+
+            app.UseRequestLocalization(o => {
+                o.AddSupportedCultures("it");
+                o.AddSupportedUICultures("it");
+                o.DefaultRequestCulture = new RequestCulture("it");
+            });
 
             app.UseRouting();
 
