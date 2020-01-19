@@ -14,6 +14,7 @@ namespace PledgeManager.Web.Controllers {
 
         private readonly MongoDatabase _database;
         private readonly PayPalManager _paypal;
+        private readonly MailComposer _composer;
         private readonly ILogger<PledgeController> _logger;
 
         private const string TempKeyPaymentConfirmation = "TempRedirectPaymentData";
@@ -22,10 +23,12 @@ namespace PledgeManager.Web.Controllers {
         public PledgeController(
             MongoDatabase database,
             PayPalManager paypal,
+            MailComposer composer,
             ILogger<PledgeController> logger
         ) {
             _database = database;
             _paypal = paypal;
+            _composer = composer;
             _logger = logger;
         }
 
