@@ -1,20 +1,23 @@
-﻿using Microsoft.Extensions.Logging;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Conventions;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using PledgeManager.Web.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace PledgeManager.Web {
-    
+
     public class MongoDatabase {
 
+        private readonly IConfiguration _configuration;
         private readonly ILogger<MongoDatabase> _logger;
 
-        public MongoDatabase(ILogger<MongoDatabase> logger) {
+        public MongoDatabase(
+            IConfiguration configuration,
+            ILogger<MongoDatabase> logger)
+        {
+            _configuration = configuration;
             _logger = logger;
         }
 
@@ -23,16 +26,13 @@ namespace PledgeManager.Web {
 
         private MongoClient Client {
             get {
-                _logger.LogTrace("Accessing Mongo client");
-
                 if(_client == null) {
                     lock (_lockRoot) {
                         if (_client == null) {
-                            _logger.LogInformation("Creating new Mongo client");
+                            var connStr = _configuration.GetSection("MongoDb")["ConnectionString"];
 
-                            _client = new MongoClient(
-                                "mongodb://mongo"
-                            );
+                            _logger.LogInformation("Creating new Mongo client");
+                            _client = new MongoClient(connStr);
                         }
                     }
                 }
@@ -41,21 +41,21 @@ namespace PledgeManager.Web {
             }
         }
 
-        private IMongoDatabase PledgeDatabase {
+        private IMongoDatabase MainDatabase {
             get {
-                return Client.GetDatabase("Pledges");
+                return Client.GetDatabase("PledgeManager");
             }
         }
 
         private IMongoCollection<Campaign> CampaignCollection {
             get {
-                return PledgeDatabase.GetCollection<Campaign>("Campaigns");
+                return MainDatabase.GetCollection<Campaign>("Campaigns");
             }
         }
 
         private IMongoCollection<Pledge> PledgeCollection {
             get {
-                return PledgeDatabase.GetCollection<Pledge>("Pledges");
+                return MainDatabase.GetCollection<Pledge>("Pledges");
             }
         }
 
