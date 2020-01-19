@@ -198,6 +198,9 @@ namespace PledgeManager.Web.Controllers {
                 return ShowError("Selected reward level does not exist.");
             }
 
+            _logger.LogInformation("Campaign {0}, user {1}, updating reward level to '{2}'",
+                campaign, userId, rewardCode);
+
             pledge.CurrentRewardLevel = rewardCode;
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
@@ -244,6 +247,9 @@ namespace PledgeManager.Web.Controllers {
                 return ShowError("Cannot add multiple instances of selected add-on.");
             }
 
+            _logger.LogInformation("Campaign {0}, user {1}, adding add-on '{2}' variant '{3}'",
+                campaign, userId, addonCode, variant);
+
             pledge.AddOns.Add(new PledgeAddOn {
                 Code = addonCode,
                 Variant = variant
@@ -279,6 +285,9 @@ namespace PledgeManager.Web.Controllers {
                 return ShowError("Selected add-on not present, cannot be removed.");
             }
 
+            _logger.LogInformation("Campaign {0}, user {1}, removing add-on '{2}' variant '{3}'",
+                campaign, userId, addonCode, variant);
+
             pledge.AddOns.Remove(addon);
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
@@ -302,6 +311,9 @@ namespace PledgeManager.Web.Controllers {
             if (ret != null) {
                 return ret;
             }
+
+            _logger.LogInformation("Campaign {0}, user {1}, closing pledge",
+                campaign, userId);
 
             pledge.Note = pledgeNotes;
             pledge.AcceptNewsletter = checkNewsletter;
@@ -328,8 +340,8 @@ namespace PledgeManager.Web.Controllers {
                 return ret;
             }
 
-            _logger.LogInformation("Processing payment order ID {0} for campaign {1} user ID {2}",
-                paymentOrderId, campaign, userId);
+            _logger.LogInformation("Campaign {0}, user {1}, processing payment order ID {2}",
+                campaign, userId, paymentOrderId);
 
             var reqOrder = new PayPalCheckoutSdk.Orders.OrdersGetRequest(paymentOrderId);
             var response = await _paypal.Client.Execute(reqOrder);
@@ -338,7 +350,8 @@ namespace PledgeManager.Web.Controllers {
                 return ShowError($"Failed to fetch order ID {paymentOrderId} status from PayPal. Contact support.");
             }
             var order = response.Result<PayPalCheckoutSdk.Orders.Order>();
-            _logger.LogInformation("Order ID {0} retrieved with status {1}", paymentOrderId, order.Status);
+            _logger.LogInformation("Campaign {0}, user {1} payment for order ID {2} retrieved with status {3}",
+                campaign, userId, paymentOrderId, order.Status);
 
             if(!"COMPLETED".Equals(order.Status, StringComparison.InvariantCultureIgnoreCase)) {
                 _logger.LogError("Order ID {0} not completed, marked as {1}", paymentOrderId, order.Status);
@@ -359,6 +372,9 @@ namespace PledgeManager.Web.Controllers {
                 }
                 total += purchaseValue;
             }
+
+            _logger.LogInformation("Campaign {0}, user {1} added payment order ID {2} for {3} to pledge",
+                campaign, userId, paymentOrderId, total);
 
             pledge.CurrentPledge += total;
             pledge.Payments.Add(new PledgePayment {

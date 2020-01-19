@@ -82,6 +82,22 @@ namespace PledgeManager.Web {
             }
         }
 
+        private IMongoDatabase LogsDatabase {
+            get {
+                return Client.GetDatabase("Logs");
+            }
+        }
+
+        private IMongoCollection<ServerLogItem> ServerLogCollection {
+            get {
+                return LogsDatabase.GetCollection<ServerLogItem>("ServerLog");
+            }
+        }
+
+        public Task InsertLogItem(ServerLogItem item) {
+            return ServerLogCollection.InsertOneAsync(item);
+        }
+
     }
 
 }
