@@ -38,8 +38,6 @@ namespace PledgeManager.Web {
                 return;
             }
 
-            Console.WriteLine("State type {0}: {1}", typeof(TState), System.Text.Json.JsonSerializer.Serialize(state, typeof(TState)));
-
             _queue.Enqueue(new IPersistentLogQueue.LogItem {
                 EventId = eventId,
                 Level = logLevel,

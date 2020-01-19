@@ -26,8 +26,8 @@ namespace PledgeManager.Web {
     public static class PersistentLogProviderExtensions {
 
         public static ILoggingBuilder AddPersistentLogger(this ILoggingBuilder builder) {
-            builder.Services.AddHostedService<PersistentLoggerService>();
             builder.Services.AddSingleton<IPersistentLogQueue, PersistentLogQueue>();
+            builder.Services.AddHostedService<PersistentLoggerService>();
             builder.Services.AddSingleton<ILoggerProvider, PersistentLogProvider>();
             return builder;
         }
