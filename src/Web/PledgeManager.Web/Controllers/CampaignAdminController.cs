@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using PledgeManager.Web.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +32,16 @@ namespace PledgeManager.Web.Controllers {
         ) {
             var campaign = await _database.GetCampaign(campaignCode);
 
-            return Content("Campaign admin");
+            (var pledges, var closedCount) = await _database.GetPledges(campaign.Id);
+
+            var vm = new CampaignDashboardViewModel {
+                Campaign = campaign,
+                Pledges = pledges,
+                PledgeCount = pledges.Count,
+                ClosedPledgeCount = (int)closedCount
+            };
+
+            return View("Home", vm);
         }
 
     }

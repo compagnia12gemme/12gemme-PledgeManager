@@ -1,0 +1,22 @@
+﻿@model PledgeManager.Web.ViewModels.CampaignDashboardViewModel
+@{
+    ViewData["Title"] = "Campaign dashboard";
+    Layout = "~/Views/Shared/Admin.cshtml";
+}
+
+<div class="row">
+    <div class="col-12 col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+        <h1>Dashboard</h1>
+
+        <p>Campaign: @Model.Campaign.Title</p>
+
+        <p>Pledges: @Model.PledgeCount.</p>
+        <p>Closed: @Model.ClosedPledgeCount.</p>
+
+        <ul>
+            @foreach(var pledge in Model.Pledges) {
+                <li>@pledge.UserId</li>
+            }
+        </ul>
+    </div>
+</div>

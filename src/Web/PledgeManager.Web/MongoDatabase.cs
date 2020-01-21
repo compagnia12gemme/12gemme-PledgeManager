@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using PledgeManager.Web.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -61,7 +62,7 @@ namespace PledgeManager.Web {
 
         public async Task<Campaign> GetCampaign(string code) {
             var filter = Builders<Campaign>.Filter.Eq(c => c.Code, code);
-            return (await CampaignCollection.FindAsync(filter)).SingleOrDefault();
+            return await CampaignCollection.Find(filter).SingleOrDefaultAsync();
         }
 
         public async Task<Pledge> GetPledge(string campaignId, int userId) {
@@ -70,7 +71,7 @@ namespace PledgeManager.Web {
                     Builders<Pledge>.Filter.Eq(p => p.CampaignId, campaignId),
                     Builders<Pledge>.Filter.Eq(p => p.UserId, userId)
                 );
-            return (await PledgeCollection.FindAsync(filter)).SingleOrDefault();
+            return await PledgeCollection.Find(filter).SingleOrDefaultAsync();
         }
 
         public async Task UpdatePledge(Pledge pledge) {
@@ -80,6 +81,19 @@ namespace PledgeManager.Web {
                 _logger.LogError("Modified count on UpdatePledge not 1");
                 throw new Exception();
             }
+        }
+
+        public async Task<(IList<Pledge> Pledges, long Closed)> GetPledges(string campaignId) {
+            var filter = Builders<Pledge>.Filter.Eq(p => p.CampaignId, campaignId);
+            
+            var pledges = await PledgeCollection.Find(filter)
+                .SortBy(p => p.UserId)
+                .ToListAsync();
+
+            var closedCount = await PledgeCollection
+                .CountDocumentsAsync(p => p.CampaignId == campaignId && p.IsClosed == true);
+
+            return (pledges, closedCount);
         }
 
         private IMongoDatabase LogsDatabase {
