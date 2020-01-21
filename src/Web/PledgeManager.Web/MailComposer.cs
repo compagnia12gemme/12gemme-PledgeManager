@@ -54,11 +54,12 @@ namespace PledgeManager.Web {
                 string.IsNullOrWhiteSpace(pledge?.Shipping?.Name) ? string.Empty : (", " + pledge.Shipping.Name));
             sb.Append("È finalmente arrivato il momento di definire in maniera esatta la tua ricompensa per aver partecipato alla nostra campagna di crowdfunding.\n\n");
             sb.Append("Ti preghiamo di cliccare sul collegamento qui sotto per accedere al pannello di gestione:\n");
-            sb.AppendFormat("https://pledge.12gem.me/campaign/{0}/pledge/{1}/{2}\n\n",
+            sb.AppendFormat("{0}/campaign/{1}/pledge/{2}/{3}\n\n",
+                Environment.GetEnvironmentVariable("LINK_BASE"),
                 campaign.Code, pledge.UserId, pledge.UserToken);
             sb.Append("Il pannello di gestione della tua offerta ti permetterà di determinare il livello finale della tua ricompensa ed aggiungere gli articoli aggiuntivi che desideri.Puoi eventualmente anche decidere di aumentare la tua offerta iniziale, in modo da aggiungere più articoli.\n\n");
             sb.Append("Grazie ancora per il tuo contributo!\n\n");
-            sb.Append("La Compagnia delle Dodici Gemme — https://12gem.me");
+            sb.Append(campaign.MailSignature);
 
             SendMessage(pledge.Email,
                 $"🗳 Accesso al pledge manager di {campaign.Title}",

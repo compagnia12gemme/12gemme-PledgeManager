@@ -37,6 +37,9 @@ namespace PledgeManager.Web.Models {
         [BsonElement("supportMail")]
         public string SupportEmailAddress { get; set; }
 
+        [BsonElement("mailSignature")]
+        public string MailSignature { get; set; }
+
         [BsonElement("rewards")]
         public List<CampaignReward> Rewards { get; set; } = new List<CampaignReward>();
 
