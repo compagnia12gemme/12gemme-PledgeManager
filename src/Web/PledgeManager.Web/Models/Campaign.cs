@@ -17,6 +17,9 @@ namespace PledgeManager.Web.Models {
         [BsonElement("code")]
         public string Code { get; set; }
 
+        [BsonElement("passwordHash")]
+        public string PasswordHash { get; set; }
+
         [BsonElement("title")]
         public string Title { get; set; }
 

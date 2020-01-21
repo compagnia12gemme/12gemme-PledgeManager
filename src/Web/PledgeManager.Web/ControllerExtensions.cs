@@ -13,6 +13,9 @@ namespace PledgeManager.Web {
             ctrl.TempData[key] = JsonSerializer.Serialize<T>(value);
         }
 
+        /// <summary>
+        /// Gets a serialized object from TempData, is present. Null otherwise.
+        /// </summary>
         public static T FromTemp<T>(this Controller ctrl, string key) {
             if(ctrl.TempData.ContainsKey(key)) {
                 try {
