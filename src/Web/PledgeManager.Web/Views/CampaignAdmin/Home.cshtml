@@ -8,15 +8,68 @@
     <div class="col-12 col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
         <h1>Dashboard</h1>
 
-        <p>Campaign: @Model.Campaign.Title</p>
+        @if(Model.Notification != null) {
+        <div id="notification" class="alert @((Model.Notification.IsError) ? "alert-danger" : "alert-primary")" role="alert">
+            @Model.Notification.Message
+        </div>
+        }
 
-        <p>Pledges: @Model.PledgeCount.</p>
-        <p>Closed: @Model.ClosedPledgeCount.</p>
+        <h3>General commands</h3>
 
-        <ul>
-            @foreach(var pledge in Model.Pledges) {
-                <li>@pledge.UserId</li>
-            }
-        </ul>
+        <p>None yet.</p>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+        <h3>Pledges</h3>
+
+        <p><b>@Model.PledgeCount</b>&nbsp;total pledges, of which <b>@Model.ClosedPledgeCount</b>&nbsp;closed.</p>
+
+        @foreach (var pledge in Model.Pledges) {
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h5>Pledge #<code>@pledge.UserId</code></h5>
+                        <p>Email: <a href="mailto:@pledge.Email">@pledge.Email</a></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        Original: <b>@pledge.OriginalPledge.ToString("F2")&nbsp;€</b>
+                    </div>
+                    <div class="col-6">
+                        Current: <b>@pledge.CurrentPledge.ToString("F2")&nbsp;€</b>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        Reward: <code>@pledge.OriginalRewardLevel</code>
+                    </div>
+                    @if (pledge.OriginalRewardLevel != pledge.CurrentRewardLevel) {
+                    <div class="col-6">
+                        Upgraded to: <code>@pledge.CurrentRewardLevel</code>
+                    </div>
+                    }
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <form action="@Url.Action("SendInvite", "CampaignAdmin", new { campaignCode = Model.Campaign.Code })" method="post">
+                            <input type="hidden" name="userId" value="@pledge.UserId" />
+
+                            <div class="form-group mt-3">
+                                <button type="submit" class="btn btn-primary">Send invite</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-muted text-center">
+                Last update: @pledge.LastUpdate.ToLongDateString() @pledge.LastUpdate.ToLongTimeString() UTC
+            </div>
+        </div>
+        }
     </div>
 </div>

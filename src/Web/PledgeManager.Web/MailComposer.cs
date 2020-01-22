@@ -57,7 +57,7 @@ namespace PledgeManager.Web {
             sb.AppendFormat("{0}/campaign/{1}/pledge/{2}/{3}\n\n",
                 Environment.GetEnvironmentVariable("LINK_BASE"),
                 campaign.Code, pledge.UserId, pledge.UserToken);
-            sb.Append("Il pannello di gestione della tua offerta ti permetterà di determinare il livello finale della tua ricompensa ed aggiungere gli articoli aggiuntivi che desideri.Puoi eventualmente anche decidere di aumentare la tua offerta iniziale, in modo da aggiungere più articoli.\n\n");
+            sb.Append("Il pannello di gestione della tua offerta ti permetterà di determinare il livello finale della tua ricompensa ed aggiungere gli articoli aggiuntivi che desideri. Puoi eventualmente anche decidere di aumentare la tua offerta iniziale, in modo da aggiungere più articoli.\n\n");
             sb.Append("Grazie ancora per il tuo contributo!\n\n");
             sb.Append(campaign.MailSignature);
 
@@ -70,9 +70,12 @@ namespace PledgeManager.Web {
         private void SendMessage(string recipientAddress, string subject, string contents) {
             var msg = new MailMessage {
                 From = _mailFrom,
+                Sender = _mailFrom,
                 IsBodyHtml = false,
                 Subject = subject,
-                Body = contents
+                SubjectEncoding = Encoding.UTF8,
+                Body = contents,
+                BodyEncoding = Encoding.UTF8
             };
             msg.To.Add(recipientAddress);
             

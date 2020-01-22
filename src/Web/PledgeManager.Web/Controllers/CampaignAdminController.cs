@@ -16,6 +16,8 @@ namespace PledgeManager.Web.Controllers {
         private readonly MailComposer _composer;
         private readonly ILogger<CampaignAdminController> _logger;
 
+        private const string TempKeyNotification = nameof(TempKeyNotification);
+
         public CampaignAdminController(
             MongoDatabase database,
             MailComposer composer,
@@ -24,6 +26,20 @@ namespace PledgeManager.Web.Controllers {
             _database = database;
             _composer = composer;
             _logger = logger;
+        }
+
+        private IActionResult RedirectToIndexWithNotification(
+            string campaignCode,
+            bool isError,
+            string notification
+        ) {
+            this.AddToTemp(TempKeyNotification, new PerformedAction {
+                IsError = isError,
+                Message = notification
+            });
+            return RedirectToAction(nameof(Index), "CampaignAdmin", new {
+                campaignCode
+            }, "notification");
         }
 
         [HttpGet]
@@ -40,8 +56,22 @@ namespace PledgeManager.Web.Controllers {
                 PledgeCount = pledges.Count,
                 ClosedPledgeCount = (int)closedCount
             };
+            vm.Notification = this.FromTemp<PerformedAction>(TempKeyNotification);
 
             return View("Home", vm);
+        }
+
+        public async Task<IActionResult> SendInvite(
+            [FromRoute] string campaignCode,
+            [FromForm] int userId
+        ) {
+            var campaign = await _database.GetCampaign(campaignCode);
+            var pledge = await _database.GetPledge(campaign.Id, userId);
+
+            _composer.SendInvitation(campaign, pledge);
+
+            return RedirectToIndexWithNotification(campaignCode, false,
+                $"Invitation email scheduled for pledge #{userId}.");
         }
 
     }

@@ -8,6 +8,8 @@ namespace PledgeManager.Web.ViewModels {
     
     public class CampaignDashboardViewModel {
 
+        public PerformedAction Notification { get; set; }
+
         public Campaign Campaign { get; set; }
 
         public IList<Pledge> Pledges { get; set; }

@@ -54,6 +54,9 @@ namespace PledgeManager.Web {
                 try {
                     await client.SendMailAsync(message);
                     _logger.LogDebug("Mail sent");
+
+                    // Wait 3 seconds to throttle delivery
+                    await Task.Delay(3000);
                 }
                 catch (Exception ex) {
                     _logger.LogError(ex, "Failed to send email to {0}", message.To);
