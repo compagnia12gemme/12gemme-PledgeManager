@@ -54,9 +54,8 @@ namespace PledgeManager.Web {
                 string.IsNullOrWhiteSpace(pledge?.Shipping?.Name) ? string.Empty : (", " + pledge.Shipping.Name));
             sb.Append("È finalmente arrivato il momento di definire in maniera esatta la tua ricompensa per aver partecipato alla nostra campagna di crowdfunding.\n\n");
             sb.Append("Ti preghiamo di cliccare sul collegamento qui sotto per accedere al pannello di gestione:\n");
-            sb.AppendFormat("{0}/campaign/{1}/pledge/{2}/{3}\n\n",
-                Environment.GetEnvironmentVariable("LINK_BASE"),
-                campaign.Code, pledge.UserId, pledge.UserToken);
+            sb.Append(GetPledgeManagerLink(campaign, pledge));
+            sb.Append("\n\n");
             sb.Append("Il pannello di gestione della tua offerta ti permetterà di determinare il livello finale della tua ricompensa ed aggiungere gli articoli aggiuntivi che desideri. Puoi eventualmente anche decidere di aumentare la tua offerta iniziale, in modo da aggiungere più articoli.\n\n");
             sb.Append("Grazie ancora per il tuo contributo!\n\n");
             sb.Append(campaign.MailSignature);
@@ -64,6 +63,37 @@ namespace PledgeManager.Web {
             SendMessage(pledge.Email,
                 $"🗳 Accesso al pledge manager di {campaign.Title}",
                 sb.ToString()
+            );
+        }
+
+        public void SendClosingConfirmation(Campaign campaign, Pledge pledge) {
+            if (pledge.Email == null) {
+                _logger.LogError("Cannot send email to pledge #{0}, no email given", pledge.UserId);
+                return;
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("Grazie{0}!\n",
+                string.IsNullOrWhiteSpace(pledge?.Shipping?.Name) ? string.Empty : (", " + pledge.Shipping.Name));
+            sb.Append("La tua ricompensa è stata registrata in maniera definitiva.\n\n");
+            sb.Append("Puoi accedere in qualsiasi momento al riassunto della tua ricompensa seguendo questo collegamento:\n");
+            sb.Append(GetPledgeManagerLink(campaign, pledge));
+            sb.Append("\n\n");
+            sb.Append("Grazie nuovamente per il tuo contributo!\n\n");
+            sb.Append(campaign.MailSignature);
+
+            SendMessage(pledge.Email,
+                $"✔ Pledge per {campaign.Title} finalizzato",
+                sb.ToString()
+            );
+        }
+
+        private string GetPledgeManagerLink(Campaign campaign, Pledge pledge) {
+            return string.Format("{0}/campaign/{1}/pledge/{2}/{3}",
+                Environment.GetEnvironmentVariable("LINK_BASE"),
+                campaign.Code,
+                pledge.UserId,
+                pledge.UserToken
             );
         }
 

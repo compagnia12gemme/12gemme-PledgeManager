@@ -324,6 +324,8 @@ namespace PledgeManager.Web.Controllers {
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
 
+            _composer.SendClosingConfirmation(c, pledge);
+
             return RedirectToAction(nameof(Index), new {
                 campaign,
                 userId,
