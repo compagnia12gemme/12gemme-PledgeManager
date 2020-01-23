@@ -1,4 +1,5 @@
 ﻿@model PledgeManager.Web.ViewModels.CampaignDashboardViewModel
+@using PledgeManager.Web.Controllers
 @{
     ViewData["Title"] = "Campaign dashboard";
     Layout = "~/Views/Shared/Admin.cshtml";
@@ -56,7 +57,7 @@
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <form action="@Url.Action("SendInvite", "CampaignAdmin", new { campaignCode = Model.Campaign.Code })" method="post">
+                        <form action="@Url.Action(nameof(CampaignAdminController.SendInvite), "CampaignAdmin", new { campaignCode = Model.Campaign.Code })" method="post">
                             <input type="hidden" name="userId" value="@pledge.UserId" />
 
                             <div class="form-group mt-3">

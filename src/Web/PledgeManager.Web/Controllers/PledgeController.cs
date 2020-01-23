@@ -219,7 +219,7 @@ namespace PledgeManager.Web.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddAddOn(
+        public async Task<IActionResult> AddAddon(
             [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token,
@@ -271,7 +271,7 @@ namespace PledgeManager.Web.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> RemoveAddOn(
+        public async Task<IActionResult> RemoveAddon(
             [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token,
@@ -306,7 +306,7 @@ namespace PledgeManager.Web.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> ClosePledge(
+        public async Task<IActionResult> Close(
             [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token,
