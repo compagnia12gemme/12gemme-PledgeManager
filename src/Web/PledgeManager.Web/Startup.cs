@@ -96,7 +96,7 @@ namespace PledgeManager.Web {
                     });
 
                 endpoints.MapControllerRoute("pledge",
-                    "campaign/{campaign}/pledge/{userId}/{token}/{action=Index}",
+                    "campaign/{campaignCode}/pledge/{userId:int:min(1)}/{token}/{action=Index}",
                     defaults: new {
                         controller = "Pledge",
                         action = "Index"
