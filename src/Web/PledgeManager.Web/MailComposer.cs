@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PledgeManager.Web.Models;
@@ -14,6 +16,7 @@ namespace PledgeManager.Web {
     public class MailComposer {
 
         private readonly IMailerQueue _queue;
+        private readonly LinkGenerator _linkGenerator;
         private readonly IConfiguration _configuration;
         private readonly ILogger<MailComposer> _logger;
 
@@ -22,10 +25,12 @@ namespace PledgeManager.Web {
 
         public MailComposer(
             IMailerQueue queue,
+            LinkGenerator linkGenerator,
             IConfiguration configuration,
             ILogger<MailComposer> logger
         ) {
             _queue = queue;
+            _linkGenerator = linkGenerator;
             _configuration = configuration;
             _logger = logger;
 
@@ -89,11 +94,16 @@ namespace PledgeManager.Web {
         }
 
         private string GetPledgeManagerLink(Campaign campaign, Pledge pledge) {
-            return string.Format("{0}/campaign/{1}/pledge/{2}/{3}",
-                Environment.GetEnvironmentVariable("LINK_BASE"),
-                campaign.Code,
-                pledge.UserId,
-                pledge.UserToken
+            return _linkGenerator.GetUriByAction(
+                nameof(Controllers.PledgeController.Index),
+                "Pledge",
+                new {
+                    campaignCode = campaign.Code,
+                    userId = pledge.UserId,
+                    token = pledge.UserToken
+                },
+                "https",
+                new HostString(Environment.GetEnvironmentVariable("SELF_HOST"))
             );
         }
 
