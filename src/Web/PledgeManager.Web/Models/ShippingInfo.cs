@@ -14,8 +14,9 @@ namespace PledgeManager.Web.Models {
         [BsonElement("address", Order = 2)]
         public string Address { get; set; }
 
-        [BsonElement("addressSecundary", Order = 3)]
-        public string AddressSecundary { get; set; }
+        [BsonElement("addressSecondary", Order = 3)]
+        [BsonIgnoreIfDefault]
+        public string AddressSecondary { get; set; }
 
         [BsonElement("zipCode", Order = 4)]
         public string ZipCode { get; set; }
