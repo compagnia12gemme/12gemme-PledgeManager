@@ -71,14 +71,20 @@
             <h3 id="shipping">Spedizione</h3>
 
             @using (Html.BeginForm(nameof(PledgeController.UpdateShipping), "Pledge", new { campaignCode = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })) {
-                <div class="form-group">
-                    <label for="inputShippingName">Nome e cognome</label>
-                    <input type="text" class="form-control" name="inputShippingName" id="inputShippingName" placeholder="Mario Rossi" value="@Model.Pledge?.Shipping?.Name" />
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="inputGivenName">Nome</label>
+                        <input type="text" class="form-control" name="inputGivenName" id="inputGivenName" placeholder="Mario" value="@Model.Pledge?.Shipping?.GivenName" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="inputSurname">Cognome</label>
+                        <input type="text" class="form-control" name="inputSurname" id="inputSurname" placeholder="Rossi" value="@Model.Pledge?.Shipping?.Surname" />
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="inputShippingAddress">Indirizzo</label>
-                    <input type="text" class="form-control" name="inputShippingAddress" id="inputShippingAddress" placeholder="Via dei Dodici, 12" value="@Model.Pledge?.Shipping?.Address" />
+                    <input type="text" class="form-control" name="inputShippingAddress" id="inputShippingAddress" placeholder="Via degli Dèi, 12" value="@Model.Pledge?.Shipping?.Address" />
                     <input type="text" class="form-control" name="inputShippingAddressSecundary" id="inputShippingAddressSecundary" value="@Model.Pledge?.Shipping?.AddressSecondary" />
                 </div>
 

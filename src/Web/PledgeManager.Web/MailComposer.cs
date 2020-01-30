@@ -55,8 +55,8 @@ namespace PledgeManager.Web {
             }
 
             var sb = new StringBuilder();
-            sb.AppendFormat("Ciao{0}!\n",
-                string.IsNullOrWhiteSpace(pledge?.Shipping?.Name) ? string.Empty : (", " + pledge.Shipping.Name));
+            sb.Append(GetGreeting("Ciao", pledge?.Shipping));
+            sb.Append("\n");
             sb.Append("È finalmente arrivato il momento di definire in maniera esatta la tua ricompensa per aver partecipato alla nostra campagna di crowdfunding.\n\n");
             sb.Append("Ti preghiamo di cliccare sul collegamento qui sotto per accedere al pannello di gestione:\n");
             sb.Append(GetPledgeManagerLink(campaign, pledge));
@@ -78,8 +78,8 @@ namespace PledgeManager.Web {
             }
 
             var sb = new StringBuilder();
-            sb.AppendFormat("Grazie{0}!\n",
-                string.IsNullOrWhiteSpace(pledge?.Shipping?.Name) ? string.Empty : (", " + pledge.Shipping.Name));
+            sb.Append(GetGreeting("Grazie", pledge?.Shipping));
+            sb.Append("\n");
             sb.Append("La tua ricompensa è stata registrata in maniera definitiva.\n\n");
             sb.Append("Puoi accedere in qualsiasi momento al riassunto della tua ricompensa seguendo questo collegamento:\n");
             sb.Append(GetPledgeManagerLink(campaign, pledge));
@@ -91,6 +91,16 @@ namespace PledgeManager.Web {
                 $"✔ Pledge per {campaign.Title} finalizzato",
                 sb.ToString()
             );
+        }
+
+        private string GetGreeting(string greeting, ShippingInfo shippingInfo) {
+            if(shippingInfo == null ||
+               string.IsNullOrWhiteSpace(shippingInfo.GivenName)) {
+                return string.Format("{0}!", greeting);
+            }
+            else {
+                return string.Format("{0}, {1}!", greeting, shippingInfo.GivenName);
+            }
         }
 
         private string GetPledgeManagerLink(Campaign campaign, Pledge pledge) {

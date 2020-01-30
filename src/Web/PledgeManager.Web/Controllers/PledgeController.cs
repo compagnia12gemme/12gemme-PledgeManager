@@ -152,7 +152,8 @@ namespace PledgeManager.Web.Controllers {
             [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token,
-            [FromForm] string inputShippingName,
+            [FromForm] string inputGivenName,
+            [FromForm] string inputSurname,
             [FromForm] string inputShippingAddress,
             [FromForm] string inputShippingAddressSecundary,
             [FromForm] string inputShippingZip,
@@ -169,7 +170,8 @@ namespace PledgeManager.Web.Controllers {
                 campaignCode, userId);
 
             pledge.Shipping = new ShippingInfo {
-                Name = inputShippingName?.Trim(),
+                GivenName = inputGivenName?.Trim(),
+                Surname = inputSurname?.Trim(),
                 Address = inputShippingAddress?.Trim(),
                 AddressSecondary = inputShippingAddressSecundary?.Trim(),
                 ZipCode = inputShippingZip?.Trim(),
