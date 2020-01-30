@@ -83,6 +83,9 @@ namespace PledgeManager.Web.Controllers {
                 return ret;
             }
 
+            pledge.LastAccess = DateTime.UtcNow;
+            await _database.UpdatePledge(pledge);
+
             // Rapid access reward and add-on maps
             var rewardMap = campaign.Rewards.ToDictionary(reward => reward.Code);
             var addonMap = campaign.AddOns.ToDictionary(addon => addon.Code);

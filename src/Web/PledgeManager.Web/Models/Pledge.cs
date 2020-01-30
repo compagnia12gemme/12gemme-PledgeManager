@@ -63,6 +63,12 @@ namespace PledgeManager.Web.Models {
         [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
         public DateTime LastUpdate { get; set; }
 
+        [BsonElement("lastAccess")]
+        [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+        [BsonDefaultValue(null)]
+        [BsonIgnoreIfNull]
+        public DateTime? LastAccess { get; set; } = null;
+
         [BsonElement("payments")]
         [BsonIgnoreIfDefault]
         public List<PledgePayment> Payments { get; set; } = new List<PledgePayment>();
