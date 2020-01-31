@@ -38,11 +38,11 @@
                 <table>
                     <thead>
                         <tr>
-                            <th scope="col">Totale ricompensa</th>
+                            <th scope="col">Totale spesa</th>
                             <th></th>
                             <th scope="col">Già pagato</th>
                             <th></th>
-                            <th scope="col">Rimanente</th>
+                            <th scope="col">Da pagare</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -121,8 +121,12 @@
                                 @if (upgrade.UpgradeCost != 0M) {
                                     <span class="badge badge-warning">
                                         @((upgrade.UpgradeCost > 0) ? "+" : "-")
-                                        @Math.Abs(upgrade.UpgradeCost).ToString("F1")
-                                        €
+                                        @Math.Abs(upgrade.UpgradeCost).ToString("F1")&nbsp;€
+                                    </span>
+                                }
+                                else {
+                                    <span class="badge badge-secondary">
+                                        @upgrade.Reward.PledgeBase.ToString("F1")&nbsp;€
                                     </span>
                                 }
                             </div>
