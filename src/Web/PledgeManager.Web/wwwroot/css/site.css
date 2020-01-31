@@ -121,3 +121,11 @@ footer {
     vertical-align: middle;
     margin-left: 0.3em;
 }
+
+.none-selected {
+    font-weight: 600;
+    margin-top: 2em;
+}
+.none-selected-description {
+    margin-bottom: 2em;
+}

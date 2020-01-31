@@ -25,10 +25,10 @@
 
         <h1>La tua offerta</h1>
 
-        <p>Questo è il “pledge manager” della tua offerta alla campagna di crowdfunding <a href="@Model.Campaign.CampaignLink" target="_blank">@Model.Campaign.Title</a>, terminata il @Model.Campaign.TerminatedOn.ToShortDateString().</p>
-        <p class="top-break">Potrai gestire qui sotto i contenuti finali della tua ricompensa: potrai eventualmente passare ad un livello superiore di ricompensa e selezionare gli eventuali <i>articoli aggiuntivi</i>.</p>
-        <p>Il pannello tiene conto del tuo contributo registrato tramite il sistema di crowdfunding nel calcolare il costo finale della tua ricompensa. Eventuali eccedenze possono essere pagate tramite PayPal.</p>
-        <p>Una volta compilata la ricompensa che desideri, potrai <b>finalizzare l’offerta</b>: dopo questo ultimo passo non sarà possibile modificare la ricompensa scelta.</p>
+        <p>Questo è il “pledge manager” della tua offerta alla <a href="@Model.Campaign.CampaignLink" target="_blank">campagna di crowdfunding</a>, terminata il @Model.Campaign.TerminatedOn.ToShortDateString().</p>
+        <p class="top-break">Potrai gestire tramite questo pannello i contenuti della tua ricompensa: potrai <b>definire gli articoli aggiuntivi</b> che vuoi ricevere oppure sfruttare questa ultima occasione per <b>passare ad un livello di ricompensa superiore</b>.</p>
+        <p>Il pannello tiene conto del tuo <b>contributo originale di @Model.Pledge.OriginalPledge.ToString("F1")&nbsp;€</b>, già versato precedentemente, per calcolare il costo finale della tua ricompensa. Eventuali differenze possono essere colmate tramite PayPal e carte di credito.</p>
+        <p>Una volta compilata la ricompensa, ricordati di <b>finalizzare l’offerta e compilare il questionario</b>: dopo questo ultimo passo non sarà più possibile modificare la ricompensa scelta.</p>
         <p class="top-break">Per qualsiasi dubbio, puoi <a href="mailto:@(Model.Campaign.SupportEmailAddress)?subject=Pledge @(Model.Pledge.UserId)">rivolgerti a noi via e-mail</a>, facendo riferimento al contributo <code>#@(Model.Pledge.UserId)</code>.</p>
     </div>
 </div>
@@ -165,12 +165,21 @@
             <h3 id="addons">Articoli aggiuntivi</h3>
 
             @if (Model.AddedAddOns.Count() == 0) {
-                <p>Nessun articolo aggiuntivo selezionato. 😔</p>
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <div class="none-selected">
+                            Nessun articolo aggiuntivo selezionato.
+                        </div>
+                        <div class="none-selected-description text-muted">
+                            Usa il pannello qui sotto per aggiungere degli articoli alla tua ricompensa.
+                        </div>
+                    </div>
+                </div>
             }
             else {
                 <div class="list-group">
                     @foreach (var addon in Model.AddedAddOns) {
-                        <div class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="list-group-item list-group-item-action">
                             <form action="@Url.Action(nameof(PledgeController.RemoveAddon), "Pledge", new { campaignCode = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
                                 <input type="hidden" name="addonCode" value="@addon.AddOn.Code" />
                                 <input type="hidden" name="variant" value="@addon.Variant" />

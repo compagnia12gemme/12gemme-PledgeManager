@@ -58,10 +58,10 @@ namespace PledgeManager.Web {
             sb.Append(GetGreeting("Ciao", pledge?.Shipping));
             sb.Append("\n");
             sb.Append("È finalmente arrivato il momento di definire in maniera esatta la tua ricompensa per aver partecipato alla nostra campagna di crowdfunding.\n\n");
-            sb.Append("Ti preghiamo di cliccare sul collegamento qui sotto per accedere al pannello di gestione:\n");
+            sb.Append("Clicca sul collegamento qui sotto per accedere al pannello di gestione:\n");
             sb.Append(GetPledgeManagerLink(campaign, pledge));
             sb.Append("\n\n");
-            sb.Append("Il pannello di gestione della tua offerta ti permetterà di determinare il livello finale della tua ricompensa ed aggiungere gli articoli aggiuntivi che desideri. Puoi eventualmente anche decidere di aumentare la tua offerta iniziale, in modo da aggiungere più articoli.\n\n");
+            sb.Append("Il pannello mostrerà la ricompensa che hai originariamente selezionato durante la campagna di crowdfunding e tiene conto dell’eventuale contributo in eccesso che hai versato. Potrai definire gli articoli aggiuntivi che vuoi ricevere oppure sfruttare questa ultima occasione per passare ad un livello di ricompensa superiore.\n\n");
             sb.Append("Grazie ancora per il tuo contributo!\n\n");
             sb.Append(campaign.MailSignature);
 
