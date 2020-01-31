@@ -118,36 +118,42 @@
             <h3 id="reward">Ricompensa</h3>
 
             <div class="list-group">
+                @{ var firstUpgradeSuggestion = true; }
                 @foreach (var upgrade in Model.UpgradePaths) {
                     var additionalClass = (upgrade.Reward.Code == Model.CurrentReward.Code) ? "active" : "";
 
-                    <div class="list-group-item list-group-item-action flex-column align-items-start @additionalClass">
+                    <div class="list-group-item list-group-item-action @additionalClass">
                         <form action="@Url.Action(nameof(PledgeController.UpdateReward), "Pledge", new { campaignCode = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
                             <input type="hidden" name="rewardCode" value="@upgrade.Reward.Code" />
 
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">@upgrade.Reward.Title</h5>
-                                @if (upgrade.UpgradeCost != 0M) {
-                                    <span class="badge badge-warning">
-                                        @((upgrade.UpgradeCost > 0) ? "+" : "-")
-                                        @Math.Abs(upgrade.UpgradeCost).ToString("F1")&nbsp;€
-                                    </span>
-                                }
-                                else {
-                                    <span class="badge badge-secondary">
-                                        @upgrade.Reward.PledgeBase.ToString("F1")&nbsp;€
-                                    </span>
-                                }
+                                <span class="badge badge-warning">
+                                    @upgrade.Reward.PledgeBase.ToString("F1")&nbsp;€
+                                </span>
                             </div>
+
                             @Html.Raw(CommonMarkConverter.Convert(upgrade.Reward.Description))
+
                             @if (upgrade.UpgradeCost < 0M) {
-                                <button type="submit" class="btn btn-danger btn-sm">Seleziona ricompensa</button>
+                                <button type="submit" class="btn btn-secondary btn-sm">Seleziona ricompensa</button>
+                                @if (upgrade.Reward.Code == Model.Pledge.OriginalRewardLevel) {
+                                <span class="upgrade-suggestion text-muted">
+                                    La tua ricompensa originale.
+                                </span>
+                                }
                             }
                             else if (upgrade.UpgradeCost > 0M) {
                                 <button type="submit" class="btn btn-success btn-sm">Seleziona ricompensa</button>
+                                @if (firstUpgradeSuggestion) {
+                                    firstUpgradeSuggestion = false;
+                                <span class="upgrade-suggestion text-success">
+                                    Solo&nbsp;@upgrade.UpgradeCost.ToString("F1")&nbsp;€ in più!
+                                </span>
+                                }
                             }
                             else {
-                                <button type="submit" class="btn btn-secondary btn-sm" disabled>Seleziona ricompensa</button>
+                                <button type="button" class="btn btn-secondary btn-sm" disabled>Seleziona ricompensa</button>
                             }
                         </form>
                     </div>

@@ -116,3 +116,8 @@ footer {
 .survey-element badge {
     font-weight: 400;
 }
+
+.upgrade-suggestion {
+    vertical-align: middle;
+    margin-left: 0.3em;
+}
