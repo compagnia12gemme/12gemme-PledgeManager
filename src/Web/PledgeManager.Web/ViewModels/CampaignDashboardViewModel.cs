@@ -12,7 +12,7 @@ namespace PledgeManager.Web.ViewModels {
 
         public Campaign Campaign { get; set; }
 
-        public IList<Pledge> Pledges { get; set; }
+        public IEnumerable<(Pledge Pledge, CampaignReward OriginalReward, CampaignReward CurrentReward)> Pledges { get; set; }
 
         public decimal TotalOriginalPledges { get; set; }
         public decimal TotalCurrentPledges { get; set; }

@@ -27,7 +27,9 @@
 
         <p><b>@Model.PledgeCount</b>&nbsp;total pledges, of which <b>@Model.ClosedPledgeCount</b>&nbsp;closed.</p>
 
-        @foreach (var pledge in Model.Pledges) {
+        @foreach (var item in Model.Pledges) {
+            var pledge = item.Pledge;
+
         <div class="card mb-3">
             <div class="card-body">
                 <div class="row">
@@ -46,11 +48,11 @@
                 </div>
                 <div class="row">
                     <div class="col-6">
-                        Reward: <code>@pledge.OriginalRewardLevel</code>
+                        Reward: <b>@item.OriginalReward.Title</b>
                     </div>
                     @if (pledge.OriginalRewardLevel != pledge.CurrentRewardLevel) {
                     <div class="col-6">
-                        Upgraded to: <code>@pledge.CurrentRewardLevel</code>
+                        Upgraded to: <b>@item.CurrentReward.Title</b>
                     </div>
                     }
                 </div>

@@ -47,12 +47,18 @@ namespace PledgeManager.Web.Controllers {
             [FromRoute] string campaignCode
         ) {
             var campaign = await _database.GetCampaign(campaignCode);
+            var rewardMap = campaign.Rewards.ToDictionary(reward => reward.Code);
 
             (var pledges, var closedCount) = await _database.GetPledges(campaign.Id);
 
             var vm = new CampaignDashboardViewModel {
                 Campaign = campaign,
-                Pledges = pledges,
+                Pledges = from p in pledges
+                          select (
+                              p,
+                              rewardMap[p.OriginalRewardLevel],
+                              rewardMap[p.CurrentRewardLevel]
+                          ),
                 PledgeCount = pledges.Count,
                 ClosedPledgeCount = (int)closedCount
             };
