@@ -1,6 +1,8 @@
-﻿@model PledgeManager.Web.ViewModels.PledgeShowViewModel
-@using CommonMark
+﻿@using CommonMark
 @using PledgeManager.Web.Controllers
+@using PledgeManager.Web.Models
+@using PledgeManager.Web.ViewModels
+@model PledgeShowViewModel
 @{
     ViewData["Title"] = "Gestione offerta";
     ViewData["CoverUrl"] = Model.Campaign.CoverUrl;
@@ -235,16 +237,53 @@
 
             <form action="@Url.Action(nameof(PledgeController.Close), "Pledge", new { campaignCode = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
 
+                @foreach(var surveyElement in Model.Campaign.Survey) {
+                    @switch(surveyElement) {
+                        case SurveyElementShortText s:
+                <div class="form-group survey-element">
+                    <label for="survey-@s.Name">
+                        @s.Title
+                        @if (s.IsOptional) {
+                            <span class="badge badge-pill badge-secondary">Opzionale</span>
+                        }
+                    </label>
+                    <input type="text" class="form-control" name="survey-@s.Name" id="survey-@s.Name" aria-describedby="survey-@s.Name-help" />
+                    <div class="text-muted small" id="survey-@s.Name-help">
+                        @Html.Raw(CommonMarkConverter.Convert(s.Description))
+                    </div>
+                </div>
+                            break;
+
+                        case SurveyElementEmailAddress s:
+                <div class="form-group">
+                    <label for="survey-@s.Name">
+                        @s.Title
+                        @if (s.IsOptional) {
+                            <span class="badge badge-pill badge-secondary">Opzionale</span>
+                        }
+                    </label>
+                    <input type="email" class="form-control" name="survey-@s.Name" id="survey-@s.Name" aria-describedby="survey-@s.Name-help" placeholder="@(s.PrefillWithEmail ? Model.Pledge.Email : string.Empty)" />
+                    <div class="text-muted small" id="survey-@s.Name-help">
+                        @Html.Raw(CommonMarkConverter.Convert(s.Description))
+                    </div>
+                </div>
+                            break;
+
+                    case SurveyElementCheckbox s:
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" name="survey-@s.Name" id="survey-@s.Name" aria-describedby="survey-@s.Name-help" />
+                    <label class="form-check-label" for="survey-@s.Name">@s.Title</label>
+                    <div class="text-muted small" id="survey-@s.Name-help">
+                        @Html.Raw(CommonMarkConverter.Convert(s.Description))
+                    </div>
+                </div>
+                            break;
+                    }
+                }
+
                 <div class="form-group">
                     <label for="pledgeNotes">Note e commenti</label>
                     <textarea class="form-control" id="pledgeNotes" name="pledgeNotes" rows="4"></textarea>
-                </div>
-
-                <div class="form-group form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="checkNewsletter" name="checkNewsletter">
-                    <label class="form-check-label" for="checkNewsletter">
-                        Desidero essere iscritto/a alla Newsletter e ricevere occasionali comunicazioni.
-                    </label>
                 </div>
 
                 <div class="form-group">

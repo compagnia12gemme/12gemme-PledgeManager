@@ -49,6 +49,10 @@ namespace PledgeManager.Web.Models {
         [BsonElement("addons")]
         public List<CampaignAddOn> AddOns { get; set; } = new List<CampaignAddOn>();
 
+        [BsonElement("survey")]
+        [BsonIgnoreIfDefault]
+        public List<SurveyElementBase> Survey { get; set; } = new List<SurveyElementBase>();
+
         [BsonExtraElements]
         public BsonDocument CatchAll { get; set; }
 

@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
+using MongoDB.Bson;
 using PledgeManager.Web.Models;
 using PledgeManager.Web.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace PledgeManager.Web.Controllers {
@@ -310,13 +313,58 @@ namespace PledgeManager.Web.Controllers {
             }, "addons");
         }
 
+        private static Regex _simpleEmailRegex = new Regex("^.*@\\w+.\\w+$",
+            RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+        private (bool Ok, string Error) ProcessSurveyElement(Pledge pledge, SurveyElementBase element, string value) {
+            _logger.LogDebug("Survey element {0} type {1} set to '{2}'", element.Name, element.GetType(), value);
+
+            switch (element) {
+                case SurveyElementShortText s:
+                    if(string.IsNullOrWhiteSpace(value) && !s.IsOptional) {
+                        return (false, $"Per favore compila il campo “{element.Title}” del sondaggio in fondo alla pagina.");
+                    }
+                    else {
+                        if (!string.IsNullOrWhiteSpace(value)) {
+                            pledge.Survey.Add(s.Name, value);
+                        }
+                        return (true, null);
+                    }
+
+                case SurveyElementEmailAddress s:
+                    if (string.IsNullOrWhiteSpace(value) && !s.IsOptional) {
+                        return (false, $"Per favore compila il campo “{element.Title}” del sondaggio in fondo alla pagina.");
+                    }
+                    else if(!string.IsNullOrWhiteSpace(value) && !_simpleEmailRegex.IsMatch(value)) {
+                        return (false, $"Per favore inserisci un indirizzo valido nel campo “{element.Title}” del sondaggio in fondo alla pagina.");
+                    }
+                    else {
+                        if (!string.IsNullOrWhiteSpace(value)) {
+                            pledge.Survey.Add(s.Name, value);
+                        }
+                        return (true, null);
+                    }
+
+                case SurveyElementCheckbox s:
+                    if(!string.IsNullOrWhiteSpace(value)) {
+                        pledge.Survey.Add(s.Name, true);
+                    }
+                    else {
+                        pledge.Survey.Add(s.Name, false);
+                    }
+                    return (true, null);
+
+                default:
+                    throw new ArgumentException();
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> Close(
             [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token,
-            [FromForm] string pledgeNotes,
-            [FromForm] bool checkNewsletter
+            [FromForm] string pledgeNotes
         ) {
             (var campaign, var pledge, var ret) = await GetPledgeAndVerify(campaignCode, userId, token);
             if (ret != null) {
@@ -326,8 +374,16 @@ namespace PledgeManager.Web.Controllers {
             _logger.LogInformation("Campaign {0}, user {1}, closing pledge",
                 campaignCode, userId);
 
+            pledge.Survey = new BsonDocument();
+            foreach(var surveyElement in campaign.Survey) {
+                Request.Form.TryGetValue("survey-" + surveyElement.Name, out var surveyValue);
+                (var surveyOk, var surveyError) = ProcessSurveyElement(pledge, surveyElement, surveyValue.ToString());
+                if(!surveyOk) {
+                    return ShowError(surveyError);
+                }
+            }
+
             pledge.Note = pledgeNotes;
-            pledge.AcceptNewsletter = checkNewsletter;
             pledge.IsClosed = true;
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);

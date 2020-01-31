@@ -112,3 +112,7 @@ footer {
 .order-summary {
     margin-bottom: 1em;
 }
+
+.survey-element badge {
+    font-weight: 400;
+}

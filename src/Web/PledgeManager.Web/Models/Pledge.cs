@@ -23,6 +23,10 @@ namespace PledgeManager.Web.Models {
         [BsonElement("userToken")]
         public string UserToken { get; set; }
 
+        [BsonElement("email")]
+        [BsonIgnoreIfDefault]
+        public string Email { get; set; }
+
         [BsonElement("shipping")]
         public ShippingInfo Shipping { get; set; }
 
@@ -82,14 +86,9 @@ namespace PledgeManager.Web.Models {
         [BsonIgnoreIfDefault]
         public bool IsClosed { get; set; } = false;
 
-        [BsonElement("acceptNewsletter")]
-        [BsonDefaultValue(false)]
-        [BsonIgnoreIfDefault]
-        public bool AcceptNewsletter { get; set; } = false;
-
-        [BsonElement("email")]
-        [BsonIgnoreIfDefault]
-        public string Email { get; set; }
+        [BsonElement("surveyResponse")]
+        [BsonIgnoreIfNull]
+        public BsonDocument Survey { get; set; } = null;
 
         [BsonExtraElements]
         public BsonDocument CatchAll { get; set; }
