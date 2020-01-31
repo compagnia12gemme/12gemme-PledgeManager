@@ -32,10 +32,10 @@ namespace PledgeManager.Web.Controllers {
             _logger = logger;
         }
 
-        private async Task<(Campaign, Pledge)> GetPledge(string campaign, int userId) {
-            var c = await _database.GetCampaign(campaign);
+        private async Task<(Campaign, Pledge)> GetPledge(string campaignCode, int userId) {
+            var c = await _database.GetCampaign(campaignCode);
             if (c == null) {
-                _logger.LogInformation("Campaign {0} does not exist", campaign);
+                _logger.LogInformation("Campaign {0} does not exist", campaignCode);
                 return (null, null);
             }
 
@@ -49,11 +49,11 @@ namespace PledgeManager.Web.Controllers {
         }
 
         private async Task<(Campaign, Pledge, IActionResult)> GetPledgeAndVerify(
-            string campaign, int userId, string token) {
+            string campaignCode, int userId, string token) {
 
-            _logger.LogDebug("Loading pledge information for campaign {0} and user {1}", campaign, userId);
+            _logger.LogDebug("Loading pledge information for campaign {0} and user {1}", campaignCode, userId);
 
-            (var c, var pledge) = await GetPledge(campaign, userId);
+            (var c, var pledge) = await GetPledge(campaignCode, userId);
             if (c == null || pledge == null) {
                 return (null, null, NotFound());
             }
@@ -74,18 +74,21 @@ namespace PledgeManager.Web.Controllers {
         }
 
         public async Task<IActionResult> Index(
-            [FromRoute] string campaign,
+            [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token
         ) {
-            (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
+            (var campaign, var pledge, var ret) = await GetPledgeAndVerify(campaignCode, userId, token);
             if (ret != null) {
                 return ret;
             }
 
+            pledge.LastAccess = DateTime.UtcNow;
+            await _database.UpdatePledge(pledge);
+
             // Rapid access reward and add-on maps
-            var rewardMap = c.Rewards.ToDictionary(reward => reward.Code);
-            var addonMap = c.AddOns.ToDictionary(addon => addon.Code);
+            var rewardMap = campaign.Rewards.ToDictionary(reward => reward.Code);
+            var addonMap = campaign.AddOns.ToDictionary(addon => addon.Code);
             var addedAddOns = from addon in pledge.AddOns
                               let campaignAddon = addonMap[addon.Code]
                               select (campaignAddon, addon.Variant);
@@ -95,17 +98,17 @@ namespace PledgeManager.Web.Controllers {
             var currentReward = rewardMap[pledge.CurrentRewardLevel];
 
             if (pledge.IsClosed) {
-                _logger.LogDebug("Showing closed pledge for campaign {0} and user {1}", campaign, userId);
+                _logger.LogDebug("Showing closed pledge for campaign {0} and user {1}", campaignCode, userId);
 
                 return View("ShowClosed", new PledgeClosedViewModel {
-                    Campaign = c,
+                    Campaign = campaign,
                     Pledge = pledge,
                     CurrentReward = currentReward,
                     AddedAddOns = addedAddOns
                 });
             }
 
-            _logger.LogDebug("Showing open pledge for campaign {0} and user {1}", campaign, userId);
+            _logger.LogDebug("Showing open pledge for campaign {0} and user {1}", campaignCode, userId);
 
             // Compute final total cost of pledge
             var finalCost = currentReward.PledgeBase + (from addon in pledge.AddOns
@@ -124,11 +127,11 @@ namespace PledgeManager.Web.Controllers {
             }
 
             var vm = new PledgeShowViewModel {
-                Campaign = c,
+                Campaign = campaign,
                 Pledge = pledge,
                 CurrentReward = currentReward,
                 AddedAddOns = addedAddOns,
-                AvailableAddOns = from addon in c.AddOns
+                AvailableAddOns = from addon in campaign.AddOns
                                   where !excludedAddOnCodes.Contains(addon.Code)
                                   select addon,
                 UpgradePaths = from upgrade in originalReward.FullUpgradePaths
@@ -149,10 +152,11 @@ namespace PledgeManager.Web.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> UpdateShipping(
-            [FromRoute] string campaign,
+            [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token,
-            [FromForm] string inputShippingName,
+            [FromForm] string inputGivenName,
+            [FromForm] string inputSurname,
             [FromForm] string inputShippingAddress,
             [FromForm] string inputShippingAddressSecundary,
             [FromForm] string inputShippingZip,
@@ -160,15 +164,19 @@ namespace PledgeManager.Web.Controllers {
             [FromForm] string inputShippingProvince,
             [FromForm] string inputShippingCountry
         ) {
-            (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
+            (var campaign, var pledge, var ret) = await GetPledgeAndVerify(campaignCode, userId, token);
             if (ret != null) {
                 return ret;
             }
 
+            _logger.LogInformation("Campaign {0}, user {1}, updating shipping information",
+                campaignCode, userId);
+
             pledge.Shipping = new ShippingInfo {
-                Name = inputShippingName?.Trim(),
+                GivenName = inputGivenName?.Trim(),
+                Surname = inputSurname?.Trim(),
                 Address = inputShippingAddress?.Trim(),
-                AddressSecundary = inputShippingAddressSecundary?.Trim(),
+                AddressSecondary = inputShippingAddressSecundary?.Trim(),
                 ZipCode = inputShippingZip?.Trim(),
                 City = inputShippingCity?.Trim(),
                 Province = inputShippingProvince?.Trim(),
@@ -178,7 +186,7 @@ namespace PledgeManager.Web.Controllers {
             await _database.UpdatePledge(pledge);
 
             return RedirectToAction(nameof(Index), "Pledge", new {
-                campaign,
+                campaignCode,
                 userId,
                 token
             }, "shipping");
@@ -186,49 +194,49 @@ namespace PledgeManager.Web.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> UpdateReward(
-            [FromRoute] string campaign,
+            [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token,
             [FromForm] string rewardCode
         ) {
-            (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
+            (var campaign, var pledge, var ret) = await GetPledgeAndVerify(campaignCode, userId, token);
             if (ret != null) {
                 return ret;
             }
 
-            if (!c.Rewards.Any(r => r.Code == rewardCode)) {
+            if (!campaign.Rewards.Any(r => r.Code == rewardCode)) {
                 _logger.LogError("Selected reward level '{0}' does not exist", rewardCode);
                 return ShowError("Selected reward level does not exist.");
             }
 
             _logger.LogInformation("Campaign {0}, user {1}, updating reward level to '{2}'",
-                campaign, userId, rewardCode);
+                campaignCode, userId, rewardCode);
 
             pledge.CurrentRewardLevel = rewardCode;
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
 
             return RedirectToAction(nameof(Index), "Pledge", new {
-                campaign,
+                campaignCode,
                 userId,
                 token
             }, "reward");
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddAddOn(
-            [FromRoute] string campaign,
+        public async Task<IActionResult> AddAddon(
+            [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token,
             [FromForm] string addonCode,
             [FromForm] string variant
         ) {
-            (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
+            (var campaign, var pledge, var ret) = await GetPledgeAndVerify(campaignCode, userId, token);
             if (ret != null) {
                 return ret;
             }
 
-            var addon = c.AddOns.Where(a => a.Code == addonCode).SingleOrDefault();
+            var addon = campaign.AddOns.Where(a => a.Code == addonCode).SingleOrDefault();
             if (addon == null) {
                 _logger.LogError("Selected add-on '{0}' does not exist", addonCode);
                 return ShowError("Selected add-on does not exist.");
@@ -251,7 +259,7 @@ namespace PledgeManager.Web.Controllers {
             }
 
             _logger.LogInformation("Campaign {0}, user {1}, adding add-on '{2}' variant '{3}'",
-                campaign, userId, addonCode, variant);
+                campaignCode, userId, addonCode, variant);
 
             pledge.AddOns.Add(new PledgeAddOn {
                 Code = addonCode,
@@ -261,21 +269,21 @@ namespace PledgeManager.Web.Controllers {
             await _database.UpdatePledge(pledge);
 
             return RedirectToAction(nameof(Index), "Pledge", new {
-                campaign,
+                campaignCode,
                 userId,
                 token
             }, "addons");
         }
 
         [HttpPost]
-        public async Task<IActionResult> RemoveAddOn(
-            [FromRoute] string campaign,
+        public async Task<IActionResult> RemoveAddon(
+            [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token,
             [FromForm] string addonCode,
             [FromForm] string variant
         ) {
-            (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
+            (var campaign, var pledge, var ret) = await GetPledgeAndVerify(campaignCode, userId, token);
             if (ret != null) {
                 return ret;
             }
@@ -289,34 +297,34 @@ namespace PledgeManager.Web.Controllers {
             }
 
             _logger.LogInformation("Campaign {0}, user {1}, removing add-on '{2}' variant '{3}'",
-                campaign, userId, addonCode, variant);
+                campaignCode, userId, addonCode, variant);
 
             pledge.AddOns.Remove(addon);
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
 
             return RedirectToAction(nameof(Index), "Pledge", new {
-                campaign,
+                campaignCode,
                 userId,
                 token
             }, "addons");
         }
 
         [HttpPost]
-        public async Task<IActionResult> ClosePledge(
-            [FromRoute] string campaign,
+        public async Task<IActionResult> Close(
+            [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token,
             [FromForm] string pledgeNotes,
             [FromForm] bool checkNewsletter
         ) {
-            (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
+            (var campaign, var pledge, var ret) = await GetPledgeAndVerify(campaignCode, userId, token);
             if (ret != null) {
                 return ret;
             }
 
             _logger.LogInformation("Campaign {0}, user {1}, closing pledge",
-                campaign, userId);
+                campaignCode, userId);
 
             pledge.Note = pledgeNotes;
             pledge.AcceptNewsletter = checkNewsletter;
@@ -324,10 +332,10 @@ namespace PledgeManager.Web.Controllers {
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
 
-            _composer.SendClosingConfirmation(c, pledge);
+            _composer.SendClosingConfirmation(campaign, pledge);
 
             return RedirectToAction(nameof(Index), new {
-                campaign,
+                campaignCode,
                 userId,
                 token
             });
@@ -335,18 +343,18 @@ namespace PledgeManager.Web.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> ProcessPayment(
-            [FromRoute] string campaign,
+            [FromRoute] string campaignCode,
             [FromRoute] int userId,
             [FromRoute] string token,
             [FromForm] string paymentOrderId
         ) {
-            (var c, var pledge, var ret) = await GetPledgeAndVerify(campaign, userId, token);
+            (var campaign, var pledge, var ret) = await GetPledgeAndVerify(campaignCode, userId, token);
             if (ret != null) {
                 return ret;
             }
 
             _logger.LogInformation("Campaign {0}, user {1}, processing payment order ID {2}",
-                campaign, userId, paymentOrderId);
+                campaignCode, userId, paymentOrderId);
 
             var reqOrder = new PayPalCheckoutSdk.Orders.OrdersGetRequest(paymentOrderId);
             var response = await _paypal.Client.Execute(reqOrder);
@@ -356,7 +364,7 @@ namespace PledgeManager.Web.Controllers {
             }
             var order = response.Result<PayPalCheckoutSdk.Orders.Order>();
             _logger.LogInformation("Campaign {0}, user {1} payment for order ID {2} retrieved with status {3}",
-                campaign, userId, paymentOrderId, order.Status);
+                campaignCode, userId, paymentOrderId, order.Status);
 
             if(!"COMPLETED".Equals(order.Status, StringComparison.InvariantCultureIgnoreCase)) {
                 _logger.LogError("Order ID {0} not completed, marked as {1}", paymentOrderId, order.Status);
@@ -379,7 +387,7 @@ namespace PledgeManager.Web.Controllers {
             }
 
             _logger.LogInformation("Campaign {0}, user {1} added payment order ID {2} for {3} to pledge",
-                campaign, userId, paymentOrderId, total);
+                campaignCode, userId, paymentOrderId, total);
 
             pledge.CurrentPledge += total;
             pledge.Payments.Add(new PledgePayment {
@@ -398,7 +406,7 @@ namespace PledgeManager.Web.Controllers {
             });
 
             return RedirectToAction(nameof(Index), "Pledge", new {
-                campaign,
+                campaignCode,
                 userId,
                 token
             }, "done");

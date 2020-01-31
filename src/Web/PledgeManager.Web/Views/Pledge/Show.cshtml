@@ -1,5 +1,6 @@
 ﻿@model PledgeManager.Web.ViewModels.PledgeShowViewModel
 @using CommonMark
+@using PledgeManager.Web.Controllers
 @{
     ViewData["Title"] = "Gestione offerta";
     ViewData["CoverUrl"] = Model.Campaign.CoverUrl;
@@ -69,16 +70,22 @@
 
             <h3 id="shipping">Spedizione</h3>
 
-            @using (Html.BeginForm("UpdateShipping", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })) {
-                <div class="form-group">
-                    <label for="inputShippingName">Nome e cognome</label>
-                    <input type="text" class="form-control" name="inputShippingName" id="inputShippingName" placeholder="Mario Rossi" value="@Model.Pledge?.Shipping?.Name" />
+            @using (Html.BeginForm(nameof(PledgeController.UpdateShipping), "Pledge", new { campaignCode = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })) {
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label for="inputGivenName">Nome</label>
+                        <input type="text" class="form-control" name="inputGivenName" id="inputGivenName" placeholder="Mario" value="@Model.Pledge?.Shipping?.GivenName" />
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="inputSurname">Cognome</label>
+                        <input type="text" class="form-control" name="inputSurname" id="inputSurname" placeholder="Rossi" value="@Model.Pledge?.Shipping?.Surname" />
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="inputShippingAddress">Indirizzo</label>
-                    <input type="text" class="form-control" name="inputShippingAddress" id="inputShippingAddress" placeholder="Via dei Dodici, 12" value="@Model.Pledge?.Shipping?.Address" />
-                    <input type="text" class="form-control" name="inputShippingAddressSecundary" id="inputShippingAddressSecundary" value="@Model.Pledge?.Shipping?.AddressSecundary" />
+                    <input type="text" class="form-control" name="inputShippingAddress" id="inputShippingAddress" placeholder="Via degli Dèi, 12" value="@Model.Pledge?.Shipping?.Address" />
+                    <input type="text" class="form-control" name="inputShippingAddressSecundary" id="inputShippingAddressSecundary" value="@Model.Pledge?.Shipping?.AddressSecondary" />
                 </div>
 
                 <div class="form-row">
@@ -113,7 +120,7 @@
                     var additionalClass = (upgrade.Reward.Code == Model.CurrentReward.Code) ? "active" : "";
 
                     <div class="list-group-item list-group-item-action flex-column align-items-start @additionalClass">
-                        <form action="@Url.Action("UpdateReward", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                        <form action="@Url.Action(nameof(PledgeController.UpdateReward), "Pledge", new { campaignCode = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
                             <input type="hidden" name="rewardCode" value="@upgrade.Reward.Code" />
 
                             <div class="d-flex w-100 justify-content-between">
@@ -156,7 +163,7 @@
                 <div class="list-group">
                     @foreach (var addon in Model.AddedAddOns) {
                         <div class="list-group-item list-group-item-action flex-column align-items-start">
-                            <form action="@Url.Action("RemoveAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                            <form action="@Url.Action(nameof(PledgeController.RemoveAddon), "Pledge", new { campaignCode = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
                                 <input type="hidden" name="addonCode" value="@addon.AddOn.Code" />
                                 <input type="hidden" name="variant" value="@addon.Variant" />
 
@@ -177,7 +184,7 @@
             <div class="list-group">
                 @foreach (var addon in Model.AvailableAddOns) {
                     <div class="list-group-item list-group-item-action flex-column align-items-start">
-                        <form action="@Url.Action("AddAddOn", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+                        <form action="@Url.Action(nameof(PledgeController.AddAddon), "Pledge", new { campaignCode = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
                             <input type="hidden" name="addonCode" value="@addon.Code" />
 
                             <div class="d-flex w-100 justify-content-between">
@@ -226,7 +233,7 @@
 
             <hr />
 
-            <form action="@Url.Action("ClosePledge", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
+            <form action="@Url.Action(nameof(PledgeController.Close), "Pledge", new { campaignCode = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post">
 
                 <div class="form-group">
                     <label for="pledgeNotes">Note e commenti</label>
@@ -272,7 +279,7 @@
 
             <p>Il corrispettivo finale per la ricompensa selezionata è superiore alla tua offerta. Puoi integrare l’offerta pagando <b>@(Model.ToPay.ToString("F1"))&nbsp;€</b> direttamente tramite <b>PayPal</b> o <b>carta di credito</b> utilizzando i pulsanti qui sotto.</p>
 
-            <form action="@Url.Action("ProcessPayment", "Pledge", new { campaign = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post" id="paymentSubmissionForm">
+            <form action="@Url.Action(nameof(PledgeController.ProcessPayment), "Pledge", new { campaignCode = Model.Campaign.Code, userId = Model.Pledge.UserId, token = Model.Pledge.UserToken })" method="post" id="paymentSubmissionForm">
                 <input type="hidden" name="paymentOrderId" id="paymentOrderId" />
             </form>
 

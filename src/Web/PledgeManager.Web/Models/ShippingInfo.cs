@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,26 +9,33 @@ namespace PledgeManager.Web.Models {
     
     public class ShippingInfo {
 
-        [BsonElement("name", Order = 1)]
-        public string Name { get; set; }
+        [BsonElement("givenName", Order = 1)]
+        public string GivenName { get; set; }
 
-        [BsonElement("address", Order = 2)]
+        [BsonElement("surname", Order = 2)]
+        public string Surname { get; set; }
+
+        [BsonElement("address", Order = 3)]
         public string Address { get; set; }
 
-        [BsonElement("addressSecundary", Order = 3)]
-        public string AddressSecundary { get; set; }
+        [BsonElement("addressSecondary", Order = 4)]
+        [BsonIgnoreIfDefault]
+        public string AddressSecondary { get; set; }
 
-        [BsonElement("zipCode", Order = 4)]
+        [BsonElement("zipCode", Order = 5)]
         public string ZipCode { get; set; }
 
-        [BsonElement("city", Order = 5)]
+        [BsonElement("city", Order = 6)]
         public string City { get; set; }
 
-        [BsonElement("province", Order = 6)]
+        [BsonElement("province", Order = 7)]
         public string Province { get; set; }
 
-        [BsonElement("country", Order = 7)]
+        [BsonElement("country", Order = 8)]
         public string Country { get; set; }
+
+        [BsonExtraElements]
+        public BsonDocument CatchAll { get; set; }
 
     }
 

@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,8 +22,10 @@ namespace PledgeManager.Web {
         public const string CampaignLoginCookieScheme = "CampaignLoginCookieScheme";
         public const string CampaignLoginPolicy = "CampaignLoginPolicy";
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
+            services.AddRouting(options => {
+                options.ConstraintMap["slugify"] = typeof(SlugifyParameterTransformer);
+            });
             services.AddControllersWithViews();
 
             services.AddSingleton(typeof(MongoDatabase));
@@ -82,28 +84,28 @@ namespace PledgeManager.Web {
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllerRoute("campaignRoot",
-                    "campaign/{action=Index}",
+                    "campaign/{action:slugify}",
                     defaults: new {
                         controller = "Campaign",
                         action = "Index"
                     });
 
                 endpoints.MapControllerRoute("campaignAdmin",
-                    "campaign/{campaignCode}/admin/{action=Index}",
+                    "campaign/{campaignCode}/admin/{action:slugify}",
                     defaults: new {
                         controller = "CampaignAdmin",
                         action = "Index"
                     });
 
                 endpoints.MapControllerRoute("pledge",
-                    "campaign/{campaign}/pledge/{userId}/{token}/{action=Index}",
+                    "campaign/{campaignCode}/pledge/{userId:int:min(1)}/{token}/{action:slugify}",
                     defaults: new {
                         controller = "Pledge",
                         action = "Index"
                     });
 
                 endpoints.MapControllerRoute("root",
-                    "{action=Index}",
+                    "{action:slugify}",
                     defaults: new {
                         controller = "Home"
                     });
