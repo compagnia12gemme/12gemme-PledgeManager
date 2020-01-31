@@ -6,7 +6,7 @@
 }
 
 <div class="row">
-    <div class="col-12 col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+    <div class="col-12">
         <h1>Dashboard</h1>
 
         @if(Model.Notification != null) {
@@ -23,56 +23,97 @@
 </div>
 
 <div class="row">
-    <div class="col-12 col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+    <div class="col-12">
         <h3>Pledges</h3>
 
         <p><b>@Model.PledgeCount</b>&nbsp;total pledges, of which <b>@Model.ClosedPledgeCount</b>&nbsp;closed.</p>
 
-        @foreach (var item in Model.Pledges) {
-            var pledge = item.Pledge;
+        <div class="table-responsive">
+            <table class="table table-sm table-double-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Reward</th>
+                        <th scope="col">Pledge</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12">
-                        <h5>Pledge #<code>@pledge.UserId</code></h5>
-                        <p>Email: <a href="mailto:@pledge.Email">@pledge.Email</a></p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        Original: <b>@pledge.OriginalPledge.ToString("F2")&nbsp;€</b>
-                    </div>
-                    <div class="col-6">
-                        Current: <b>@pledge.CurrentPledge.ToString("F2")&nbsp;€</b>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        Reward: <b>@item.OriginalReward.Title</b>
-                    </div>
-                    @if (pledge.OriginalRewardLevel != pledge.CurrentRewardLevel) {
-                    <div class="col-6">
-                        Upgraded to: <b>@item.CurrentReward.Title</b>
-                    </div>
-                    }
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <form action="@Url.Action(nameof(CampaignAdminController.SendInvite), "CampaignAdmin", new { campaignCode = Model.Campaign.Code })" method="post">
-                            <input type="hidden" name="userId" value="@pledge.UserId" />
+                @foreach (var item in Model.Pledges) {
+                    var pledge = item.Pledge;
+                
+                    <tr>
+                        <th scope="row" rowspan="2">
+                            @pledge.UserId
+                        </th>
+                        <td>
+                            @pledge.Shipping?.GivenName
+                            @pledge.Shipping?.Surname
+                        </td>
+                        <td>
+                            <a href="mailto:@pledge.Email">
+                                @pledge.Email
+                            </a>
+                        </td>
+                        <td>
+                            @if(pledge.CurrentRewardLevel != pledge.OriginalRewardLevel) {
+                                <img src="~/arrow-up-circle.svg" class="icon" />
+                            }
+                            else {
+                                <img src="~/circle.svg" class="icon" />
+                            }
+                            @pledge.CurrentRewardLevel
+                        </td>
+                        <td class="text-right">
+                            @pledge.CurrentPledge.ToString("F2")&nbsp;€
+                            @if(pledge.CurrentPledge > pledge.OriginalPledge) {
+                                <img src="~/arrow-up-circle.svg" class="icon" />
+                            }
+                            else {
+                                <img src="~/circle.svg" class="icon" />
+                            }
+                        </td>
+                        <td>
+                            @if(pledge.IsClosed) {
+                                <img src="~/check-circle.svg" class="icon" />
+                            }
+                            else if(pledge.LastAccess.HasValue) {
+                                <img src="~/eye.svg" class="icon" />
+                            }
+                            else {
+                                <img src="~/eye-off.svg" class="icon" />
+                            }
 
-                            <div class="form-group mt-3">
-                                <button type="submit" class="btn btn-primary">Send invite</button>
+                            <a href="@Url.Action(nameof(PledgeController.Index), "Pledge", new { campaignCode = Model.Campaign.Code, userId = pledge.UserId, token = pledge.UserToken })">
+                                <img src="~/link.svg" class="icon" />
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5">
+                            <div class="form-line">
+                                <form action="@Url.Action(nameof(CampaignAdminController.SendInvite), "CampaignAdmin", new { campaignCode = Model.Campaign.Code })" method="post">
+                                    <input type="hidden" name="userId" value="@pledge.UserId" />
+
+                                    <button type="submit" class="btn btn-primary btn-sm">Send invite</button>
+                                </form>
+
+                                <form action="@Url.Action(nameof(CampaignAdminController.SendReminder), "CampaignAdmin", new { campaignCode = Model.Campaign.Code })" method="post">
+                                    <input type="hidden" name="userId" value="@pledge.UserId" />
+
+                                    <button type="submit" class="btn btn-primary btn-sm">Send reminder</button>
+                                </form>
                             </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer text-muted text-center">
-                Last update: @pledge.LastUpdate.ToLongDateString() @pledge.LastUpdate.ToLongTimeString() UTC
-            </div>
+                        </td>
+                    </tr>
+
+                }
+                </tbody>
+            </table>
         </div>
-        }
+
     </div>
 </div>

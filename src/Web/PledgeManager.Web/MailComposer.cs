@@ -58,7 +58,7 @@ namespace PledgeManager.Web {
             sb.Append(GetGreeting("Ciao", pledge?.Shipping));
             sb.Append("\n");
             sb.Append("È finalmente arrivato il momento di definire in maniera esatta la tua ricompensa per aver partecipato alla nostra campagna di crowdfunding.\n\n");
-            sb.Append("Clicca sul collegamento qui sotto per accedere al pannello di gestione:\n");
+            sb.Append("Clicca sul collegamento qui sotto per accedere al tuo pannello di gestione:\n");
             sb.Append(GetPledgeManagerLink(campaign, pledge));
             sb.Append("\n\n");
             sb.Append("Il pannello mostrerà la ricompensa che hai originariamente selezionato durante la campagna di crowdfunding e tiene conto dell’eventuale contributo in eccesso che hai versato. Potrai definire gli articoli aggiuntivi che vuoi ricevere oppure sfruttare questa ultima occasione per passare ad un livello di ricompensa superiore.\n\n");
@@ -66,7 +66,30 @@ namespace PledgeManager.Web {
             sb.Append(campaign.MailSignature);
 
             SendMessage(pledge.Email,
-                $"🗳 Accesso al pledge manager di {campaign.Title}",
+                $"📣 Accesso al pledge manager di {campaign.Title}",
+                sb.ToString()
+            );
+        }
+
+        public void SendReminder(Campaign campaign, Pledge pledge) {
+            if (pledge.Email == null) {
+                _logger.LogError("Cannot send email to pledge #{0}, no email given", pledge.UserId);
+                return;
+            }
+
+            var sb = new StringBuilder();
+            sb.Append(GetGreeting("Ciao", pledge?.Shipping));
+            sb.Append("\n");
+            sb.Append("La tua ricompensa per la campagna di crowdfunding non è ancora stata finalizzata: questo significa che non sappiamo ancora quali siano la ricompensa e gli articoli aggiuntivi che desideri ottenere. Per permetterci di procedere con l’invio del materiale senza ritardi, ti preghiamo gentilmente di concludere la procedura quanto prima.\n\n");
+            sb.Append("Clicca sul collegamento qui sotto per accedere al tuo pannello di gestione:\n");
+            sb.Append(GetPledgeManagerLink(campaign, pledge));
+            sb.Append("\n\n");
+            sb.Append("Il pannello mostrerà la ricompensa che hai originariamente selezionato durante la campagna di crowdfunding e tiene conto dell’eventuale contributo in eccesso che hai versato. Potrai definire gli articoli aggiuntivi che vuoi ricevere oppure sfruttare questa ultima occasione per passare ad un livello di ricompensa superiore.\n\n");
+            sb.Append("Grazie ancora per il tuo contributo!\n\n");
+            sb.Append(campaign.MailSignature);
+
+            SendMessage(pledge.Email,
+                $"⏰ Finalizza la tua ricompensa per {campaign.Title}",
                 sb.ToString()
             );
         }

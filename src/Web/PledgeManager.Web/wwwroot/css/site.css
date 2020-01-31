@@ -129,3 +129,18 @@ footer {
 .none-selected-description {
     margin-bottom: 2em;
 }
+
+.table-double-striped tbody tr:nth-of-type(4n-1), .table-double-striped tbody tr:nth-of-type(4n) {
+    background-color: rgba(0,0,0,.05);
+}
+
+.icon {
+    height: 1em;
+    width: auto;
+}
+
+.form-line {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+}

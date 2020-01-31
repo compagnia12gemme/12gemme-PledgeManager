@@ -80,6 +80,19 @@ namespace PledgeManager.Web.Controllers {
                 $"Invitation email scheduled for pledge #{userId}.");
         }
 
+        public async Task<IActionResult> SendReminder(
+            [FromRoute] string campaignCode,
+            [FromForm] int userId
+        ) {
+            var campaign = await _database.GetCampaign(campaignCode);
+            var pledge = await _database.GetPledge(campaign.Id, userId);
+
+            _composer.SendReminder(campaign, pledge);
+
+            return RedirectToIndexWithNotification(campaignCode, false,
+                $"Reminder email scheduled for pledge #{userId}.");
+        }
+
     }
 
 }

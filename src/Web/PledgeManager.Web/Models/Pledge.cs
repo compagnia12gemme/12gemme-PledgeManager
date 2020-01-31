@@ -65,7 +65,9 @@ namespace PledgeManager.Web.Models {
 
         [BsonElement("lastUpdate")]
         [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-        public DateTime LastUpdate { get; set; }
+        [BsonDefaultValue(null)]
+        [BsonIgnoreIfNull]
+        public DateTime? LastUpdate { get; set; } = null;
 
         [BsonElement("lastAccess")]
         [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
