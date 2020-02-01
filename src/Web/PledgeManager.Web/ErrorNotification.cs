@@ -9,6 +9,16 @@ namespace PledgeManager.Web {
 
         public string Message { get; set; }
 
+        public HashSet<string> ErrorKeys { get; set; } = new HashSet<string>();
+
+        public void AddErrorKey(string key) {
+            ErrorKeys.Add(key);
+        }
+
+        public bool HasError(string key) {
+            return ErrorKeys.Contains(key);
+        }
+
     }
 
 }

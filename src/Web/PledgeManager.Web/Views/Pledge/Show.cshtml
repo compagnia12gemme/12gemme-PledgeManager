@@ -77,38 +77,38 @@
                 <div class="form-row">
                     <div class="form-group col-6">
                         <label for="inputGivenName">Nome</label>
-                        <input type="text" class="form-control" name="inputGivenName" id="inputGivenName" placeholder="Mario" value="@Model.Pledge?.Shipping?.GivenName" />
+                        <input type="text" class="form-control @(Model.HasError("inputGivenName") ? "is-invalid" : "")" name="inputGivenName" id="inputGivenName" placeholder="Mario" value="@Model.Pledge?.Shipping?.GivenName" />
                     </div>
                     <div class="form-group col-6">
                         <label for="inputSurname">Cognome</label>
-                        <input type="text" class="form-control" name="inputSurname" id="inputSurname" placeholder="Rossi" value="@Model.Pledge?.Shipping?.Surname" />
+                        <input type="text" class="form-control @(Model.HasError("inputSurname") ? "is-invalid" : "")" name="inputSurname" id="inputSurname" placeholder="Rossi" value="@Model.Pledge?.Shipping?.Surname" />
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="inputShippingAddress">Indirizzo</label>
-                    <input type="text" class="form-control" name="inputShippingAddress" id="inputShippingAddress" placeholder="Via degli Dèi, 12" value="@Model.Pledge?.Shipping?.Address" />
+                    <input type="text" class="form-control @(Model.HasError("inputShippingAddress") ? "is-invalid" : "")" name="inputShippingAddress" id="inputShippingAddress" placeholder="Via degli Dèi, 12" value="@Model.Pledge?.Shipping?.Address" />
                     <input type="text" class="form-control" name="inputShippingAddressSecundary" id="inputShippingAddressSecundary" value="@Model.Pledge?.Shipping?.AddressSecondary" />
                 </div>
 
                 <div class="form-row">
                     <div class="form-group col-sm-3">
                         <label for="inputShippingZip">CAP</label>
-                        <input type="text" class="form-control" name="inputShippingZip" id="inputShippingZip" value="@Model.Pledge?.Shipping?.ZipCode" />
+                        <input type="text" class="form-control @(Model.HasError("inputShippingZip") ? "is-invalid" : "")" name="inputShippingZip" id="inputShippingZip" value="@Model.Pledge?.Shipping?.ZipCode" />
                     </div>
                     <div class="form-group col-sm-6">
                         <label for="inputShippingCity">Città</label>
-                        <input type="text" class="form-control" name="inputShippingCity" id="inputShippingCity" value="@Model.Pledge?.Shipping?.City" />
+                        <input type="text" class="form-control @(Model.HasError("inputShippingCity") ? "is-invalid" : "")" name="inputShippingCity" id="inputShippingCity" value="@Model.Pledge?.Shipping?.City" />
                     </div>
                     <div class="form-group col-sm-3">
                         <label for="inputShippingProvince">Prov.</label>
-                        <input type="text" class="form-control" name="inputShippingProvince" id="inputShippingProvince" value="@Model.Pledge?.Shipping?.Province" />
+                        <input type="text" class="form-control @(Model.HasError("inputShippingProvince") ? "is-invalid" : "")" name="inputShippingProvince" id="inputShippingProvince" value="@Model.Pledge?.Shipping?.Province" />
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="inputShippingCountry">Paese</label>
-                    <input type="text" class="form-control" name="inputShippingCountry" id="inputShippingCountry" placeholder="Italia" value="@Model.Pledge?.Shipping?.Country" />
+                    <input type="text" class="form-control @(Model.HasError("inputShippingCountry") ? "is-invalid" : "")" name="inputShippingCountry" id="inputShippingCountry" placeholder="Italia" value="@Model.Pledge?.Shipping?.Country" />
                 </div>
 
                 <button type="submit" class="btn btn-primary">Aggiorna indirizzo</button>
@@ -263,7 +263,7 @@
                             <span class="badge badge-pill badge-secondary">Opzionale</span>
                         }
                     </label>
-                    <input type="text" class="form-control" name="survey-@s.Name" id="survey-@s.Name" aria-describedby="survey-@s.Name-help" />
+                    <input type="text" class="form-control @(Model.HasError("survey-" + s.Name) ? "is-invalid" : "")" name="survey-@s.Name" id="survey-@s.Name" aria-describedby="survey-@s.Name-help" />
                     <div class="text-muted small" id="survey-@s.Name-help">
                         @Html.Raw(CommonMarkConverter.Convert(s.Description))
                     </div>
@@ -278,7 +278,7 @@
                             <span class="badge badge-pill badge-secondary">Opzionale</span>
                         }
                     </label>
-                    <input type="email" class="form-control" name="survey-@s.Name" id="survey-@s.Name" aria-describedby="survey-@s.Name-help" placeholder="@(s.PrefillWithEmail ? Model.Pledge.Email : string.Empty)" />
+                    <input type="email" class="form-control @(Model.HasError("survey-" + s.Name) ? "is-invalid" : "")" name="survey-@s.Name" id="survey-@s.Name" aria-describedby="survey-@s.Name-help" placeholder="@(s.PrefillWithEmail ? Model.Pledge.Email : string.Empty)" />
                     <div class="text-muted small" id="survey-@s.Name-help">
                         @Html.Raw(CommonMarkConverter.Convert(s.Description))
                     </div>
@@ -287,7 +287,7 @@
 
                     case SurveyElementCheckbox s:
                 <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" name="survey-@s.Name" id="survey-@s.Name" aria-describedby="survey-@s.Name-help" />
+                    <input type="checkbox" class="form-check-input @(Model.HasError("survey-" + s.Name) ? "is-invalid" : "")" name="survey-@s.Name" id="survey-@s.Name" aria-describedby="survey-@s.Name-help" />
                     <label class="form-check-label" for="survey-@s.Name">@s.Title</label>
                     <div class="text-muted small" id="survey-@s.Name-help">
                         @Html.Raw(CommonMarkConverter.Convert(s.Description))

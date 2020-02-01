@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using MongoDB.Bson;
@@ -68,10 +69,15 @@ namespace PledgeManager.Web.Controllers {
             return (c, pledge, null);
         }
 
-        private IActionResult ShowError(string message) {
-            this.AddToTemp(TempKeyErrorNotification, new ErrorNotification {
+        private IActionResult ShowError(string message, params string[] errorKeys) {
+            var notification = new ErrorNotification {
                 Message = message
-            });
+            };
+            foreach(var k in errorKeys) {
+                notification.AddErrorKey(k);
+            }
+
+            this.AddToTemp(TempKeyErrorNotification, notification);
 
             return RedirectToAction(nameof(Index));
         }
@@ -187,6 +193,11 @@ namespace PledgeManager.Web.Controllers {
             };
             pledge.LastUpdate = DateTime.UtcNow;
             await _database.UpdatePledge(pledge);
+
+            var errors = ValidateShipping(pledge.Shipping);
+            if(errors.Any()) {
+                return ShowError("Indirizzo di spedizione non valido o non completo.", errors.ToArray());
+            }
 
             return RedirectToAction(nameof(Index), "Pledge", new {
                 campaignCode,
@@ -371,24 +382,35 @@ namespace PledgeManager.Web.Controllers {
                 return ret;
             }
 
-            _logger.LogInformation("Campaign {0}, user {1}, closing pledge",
+            _logger.LogInformation("Campaign {0}, user {1}, attempting to close pledge",
                 campaignCode, userId);
+
+            var errors = new List<string>();
+            errors.AddRange(ValidateShipping(pledge.Shipping));
 
             pledge.Survey = new BsonDocument();
             foreach(var surveyElement in campaign.Survey) {
                 Request.Form.TryGetValue("survey-" + surveyElement.Name, out var surveyValue);
                 (var surveyOk, var surveyError) = ProcessSurveyElement(pledge, surveyElement, surveyValue.ToString());
                 if(!surveyOk) {
-                    return ShowError(surveyError);
+                    errors.Add("survey-" + surveyElement.Name);
                 }
             }
 
             pledge.Note = pledgeNotes;
-            pledge.IsClosed = true;
             pledge.LastUpdate = DateTime.UtcNow;
-            await _database.UpdatePledge(pledge);
 
-            _composer.SendClosingConfirmation(campaign, pledge);
+            if (errors.Any()) {
+                _logger.LogDebug("Campaign {0}, user {1}, failed to close pledge ({2} errors)", errors.Count);
+                return ShowError("Alcune informazioni non sono state compilate.", errors.ToArray());
+            }
+            else {
+                _logger.LogDebug("Campaign {0}, user {1}, pledge closed");
+                pledge.IsClosed = true;
+                _composer.SendClosingConfirmation(campaign, pledge);
+            }
+
+            await _database.UpdatePledge(pledge);
 
             return RedirectToAction(nameof(Index), new {
                 campaignCode,
@@ -466,6 +488,34 @@ namespace PledgeManager.Web.Controllers {
                 userId,
                 token
             }, "done");
+        }
+
+        private IEnumerable<string> ValidateShipping(ShippingInfo shipping) {
+            List<string> errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(shipping.GivenName)) {
+                errors.Add("inputGivenName");
+            }
+            if (string.IsNullOrWhiteSpace(shipping.Surname)) {
+                errors.Add("inputSurname");
+            }
+            if (string.IsNullOrWhiteSpace(shipping.Address)) {
+                errors.Add("inputShippingAddress");
+            }
+            if (string.IsNullOrWhiteSpace(shipping.ZipCode)) {
+                errors.Add("inputShippingZip");
+            }
+            if (string.IsNullOrWhiteSpace(shipping.City)) {
+                errors.Add("inputShippingCity");
+            }
+            if (string.IsNullOrWhiteSpace(shipping.Province)) {
+                errors.Add("inputShippingProvince");
+            }
+            if (string.IsNullOrWhiteSpace(shipping.Country)) {
+                errors.Add("inputShippingCountry");
+            }
+
+            return errors;
         }
 
     }
