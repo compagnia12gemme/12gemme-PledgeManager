@@ -1,4 +1,5 @@
 ﻿@using CommonMark
+@using System.Globalization
 @using PledgeManager.Web.Controllers
 @using PledgeManager.Web.Models
 @using PledgeManager.Web.ViewModels
@@ -348,11 +349,11 @@ paypal.Buttons({
             purchase_units: [
                 {
                     amount: {
-                        value: '@(Model.ToPay.ToString("F2"))',
+                        value: '@(Model.ToPay.ToString("F2", CultureInfo.InvariantCulture))',
                         currency_code: 'EUR'
                     },
                     description: 'Contributo a campagna @(Model.Campaign.Title)',
-                    invoice_id: 'PLDG/@(Model.Pledge.UserId)/@(Model.Pledge.Payments.Count+1)',
+                    invoice_id: '@Model.Campaign.Code.ToUpperInvariant()/@(Model.Pledge.UserId)/@(Model.Pledge.Payments.Count+1)/@Model.GetRandomCode()',
                     soft_descriptor: '@(Model.Campaign.Code.ToUpperInvariant())'
                 }
             ]
