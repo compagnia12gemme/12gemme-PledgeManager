@@ -67,6 +67,7 @@ namespace PledgeManager.Web.Controllers {
             return View("Home", vm);
         }
 
+        [HttpPost]
         public async Task<IActionResult> SendInvite(
             [FromRoute] string campaignCode,
             [FromForm] int userId
@@ -80,6 +81,7 @@ namespace PledgeManager.Web.Controllers {
                 $"Invitation email scheduled for pledge #{userId}.");
         }
 
+        [HttpPost]
         public async Task<IActionResult> SendReminder(
             [FromRoute] string campaignCode,
             [FromForm] int userId
