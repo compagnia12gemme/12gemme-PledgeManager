@@ -77,17 +77,17 @@
                 <div class="form-row">
                     <div class="form-group col-6">
                         <label for="inputGivenName">Nome</label>
-                        <input type="text" class="form-control @(Model.HasError("inputGivenName") ? "is-invalid" : "")" name="inputGivenName" id="inputGivenName" placeholder="Mario" value="@Model.Pledge?.Shipping?.GivenName" />
+                        <input type="text" class="form-control @(Model.HasError("inputGivenName") ? "is-invalid" : "")" name="inputGivenName" id="inputGivenName" value="@Model.Pledge?.Shipping?.GivenName" />
                     </div>
                     <div class="form-group col-6">
                         <label for="inputSurname">Cognome</label>
-                        <input type="text" class="form-control @(Model.HasError("inputSurname") ? "is-invalid" : "")" name="inputSurname" id="inputSurname" placeholder="Rossi" value="@Model.Pledge?.Shipping?.Surname" />
+                        <input type="text" class="form-control @(Model.HasError("inputSurname") ? "is-invalid" : "")" name="inputSurname" id="inputSurname" value="@Model.Pledge?.Shipping?.Surname" />
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="inputShippingAddress">Indirizzo</label>
-                    <input type="text" class="form-control @(Model.HasError("inputShippingAddress") ? "is-invalid" : "")" name="inputShippingAddress" id="inputShippingAddress" placeholder="Via degli Dèi, 12" value="@Model.Pledge?.Shipping?.Address" />
+                    <input type="text" class="form-control @(Model.HasError("inputShippingAddress") ? "is-invalid" : "")" name="inputShippingAddress" id="inputShippingAddress" value="@Model.Pledge?.Shipping?.Address" />
                     <input type="text" class="form-control" name="inputShippingAddressSecundary" id="inputShippingAddressSecundary" value="@Model.Pledge?.Shipping?.AddressSecondary" />
                 </div>
 
@@ -108,7 +108,7 @@
 
                 <div class="form-group">
                     <label for="inputShippingCountry">Paese</label>
-                    <input type="text" class="form-control @(Model.HasError("inputShippingCountry") ? "is-invalid" : "")" name="inputShippingCountry" id="inputShippingCountry" placeholder="Italia" value="@Model.Pledge?.Shipping?.Country" />
+                    <input type="text" class="form-control @(Model.HasError("inputShippingCountry") ? "is-invalid" : "")" name="inputShippingCountry" id="inputShippingCountry" value="@Model.Pledge?.Shipping?.Country" />
                 </div>
 
                 <button type="submit" class="btn btn-primary">Aggiorna indirizzo</button>
