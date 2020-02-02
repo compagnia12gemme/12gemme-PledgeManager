@@ -144,3 +144,7 @@ footer {
     flex-direction: row;
     gap: 0.5em;
 }
+
+.form-inline > * {
+    margin-right: 1em;
+}

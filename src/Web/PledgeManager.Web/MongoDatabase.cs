@@ -83,6 +83,10 @@ namespace PledgeManager.Web {
             }
         }
 
+        public Task InsertPledge(Pledge pledge) {
+            return PledgeCollection.InsertOneAsync(pledge);
+        }
+
         public async Task<(IList<Pledge> Pledges, long Closed)> GetPledges(string campaignId) {
             var filter = Builders<Pledge>.Filter.Eq(p => p.CampaignId, campaignId);
             

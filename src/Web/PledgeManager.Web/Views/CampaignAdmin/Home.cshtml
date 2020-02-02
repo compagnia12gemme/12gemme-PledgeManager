@@ -17,7 +17,12 @@
 
         <h3>General commands</h3>
 
-        <p>None yet.</p>
+        <form method="post" action="@Url.Action(nameof(CampaignAdminController.ImportKickstarterBackers), "CampaignAdmin", new { campaignCode = Model.Campaign.Code })" enctype="multipart/form-data" class="form-inline" role="form">
+            <label for="backerFile">Kickstarter backer file (CSV):</label>
+            <input name="backerFile" type="file" class="input-form-control" accept="text/*" />
+
+            <button id="submit" type="submit" value="submit" class="btn btn-danger">Upload</button>
+        </form>
 
     </div>
 </div>

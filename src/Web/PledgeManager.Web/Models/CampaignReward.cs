@@ -23,6 +23,9 @@ namespace PledgeManager.Web.Models {
         [BsonElement("upgradePaths", Order = 5)]
         public List<string> UpgradePaths { get; set; } = new List<string>();
 
+        [BsonElement("importId")]
+        public int ImportRewardId { get; set; }
+
         [BsonIgnore]
         public IEnumerable<string> FullUpgradePaths {
             get {
