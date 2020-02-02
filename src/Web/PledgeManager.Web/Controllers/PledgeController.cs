@@ -148,7 +148,7 @@ namespace PledgeManager.Web.Controllers {
                                let campaignUpgrade = rewardMap[upgrade]
                                let upgradeDifference = campaignUpgrade.PledgeBase - currentReward.PledgeBase
                                select (campaignUpgrade, upgradeDifference),
-                FinalCost = finalCost
+                FinalCost = finalCost + pledge.OriginalShippingPayment
             };
 
             // Fetch redirect temp data

@@ -30,6 +30,10 @@ namespace PledgeManager.Web.Models {
         [BsonElement("shipping")]
         public ShippingInfo Shipping { get; set; }
 
+        [BsonElement("originalShippingPayment")]
+        [BsonIgnoreIfDefault]
+        public decimal OriginalShippingPayment { get; set; }
+
         [BsonElement("originalPledge")]
         public decimal OriginalPledge { get; set; }
 

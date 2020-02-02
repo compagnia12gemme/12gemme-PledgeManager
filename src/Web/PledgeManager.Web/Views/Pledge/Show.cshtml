@@ -159,6 +159,20 @@
                         </form>
                     </div>
                 }
+
+                @if (Model.Pledge.OriginalShippingPayment != 0M) {
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Spedizione</h5>
+                        <span class="badge badge-warning">
+                            @Model.Pledge.OriginalShippingPayment.ToString("F1")&nbsp;€
+                        </span>
+                    </div>
+                    <p>
+                        Contributo per la spedizione fuori dall’Italia (già pagato).
+                    </p>
+                </div>
+                }
             </div>
 
             <hr />
