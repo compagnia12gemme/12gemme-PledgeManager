@@ -7,6 +7,7 @@ using PledgeManager.Web.Models;
 using PledgeManager.Web.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -457,7 +458,7 @@ namespace PledgeManager.Web.Controllers {
                     _logger.LogWarning("Currency {0} not handled", pu.AmountWithBreakdown.CurrencyCode);
                     continue;
                 }
-                if(!decimal.TryParse(pu.AmountWithBreakdown.Value, out decimal purchaseValue)) {
+                if(!decimal.TryParse(pu.AmountWithBreakdown.Value, NumberStyles.Currency, CultureInfo.InvariantCulture, out decimal purchaseValue)) {
                     _logger.LogError("Cannot parse purchase unit value {0} {1}", pu.AmountWithBreakdown.Value, pu.AmountWithBreakdown.CurrencyCode);
                     continue;
                 }
