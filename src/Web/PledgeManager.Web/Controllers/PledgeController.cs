@@ -137,6 +137,7 @@ namespace PledgeManager.Web.Controllers {
             }
 
             var vm = new PledgeShowViewModel {
+                PayPalClientId = _paypal.Environment.ClientId(),
                 Campaign = campaign,
                 Pledge = pledge,
                 CurrentReward = currentReward,

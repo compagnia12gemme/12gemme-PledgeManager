@@ -35,11 +35,13 @@ namespace PledgeManager.Web {
                             var clientId = section["ClientID"];
                             var clientSecret = section["ClientSecret"];
                             if (Convert.ToBoolean(section["Sandbox"]) == true) {
-                                _logger.LogDebug("Creating sandbox PayPal environment for client ID {0}", clientId);
+                                _logger.LogInformation("Creating sandbox PayPal environment for client ID {0}", clientId);
 
                                 _environment = new SandboxEnvironment(clientId, clientSecret);
                             }
                             else {
+                                _logger.LogInformation("Creating live PayPal environment for client ID {0}", clientId);
+
                                 _environment = new LiveEnvironment(clientId, clientSecret);
                             }
                         }

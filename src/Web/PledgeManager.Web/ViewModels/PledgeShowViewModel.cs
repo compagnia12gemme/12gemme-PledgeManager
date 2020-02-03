@@ -9,6 +9,8 @@ namespace PledgeManager.Web.ViewModels {
 
     public class PledgeShowViewModel {
 
+        public string PayPalClientId { get; set; }
+
         public Campaign Campaign { get; set; }
 
         public Pledge Pledge { get; set; }
