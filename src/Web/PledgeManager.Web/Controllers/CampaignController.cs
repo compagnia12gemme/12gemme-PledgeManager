@@ -66,7 +66,7 @@ namespace PledgeManager.Web.Controllers {
                 return RedirectToAction(nameof(Index));
             }
 
-            _logger.LogInformation("Administrator for campaign {0} logged in", loginCampaign);
+            _logger.LogInformation("Administrator for campaign '{0}' logged in", loginCampaign);
 
             var claims = new Claim[] {
                 new Claim(ClaimTypes.NameIdentifier, loginCampaign)

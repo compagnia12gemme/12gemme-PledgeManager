@@ -168,6 +168,23 @@ namespace PledgeManager.Web.Controllers {
             return RedirectToIndexWithNotification(campaignCode, false, "Done");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SendInvitations(
+            [FromRoute] string campaignCode
+        ) {
+            var campaign = await _database.GetCampaign(campaignCode);
+            (var pledges, _) = await _database.GetPledges(campaign.Id);
+
+            int count = 0;
+            foreach (var pledge in pledges) {
+                count++;
+                _composer.SendInvitation(campaign, pledge);
+            }
+
+            return RedirectToIndexWithNotification(campaignCode, false,
+                $"Scheduled {count} invitation emails.");
+        }
+
     }
 
 }

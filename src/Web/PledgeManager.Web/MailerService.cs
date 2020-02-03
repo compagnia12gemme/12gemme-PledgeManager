@@ -53,7 +53,7 @@ namespace PledgeManager.Web {
 
                 try {
                     await client.SendMailAsync(message);
-                    _logger.LogDebug("Mail sent");
+                    _logger.LogInformation("Mail to {0} sent", message.To);
 
                     // Wait 3 seconds to throttle delivery
                     await Task.Delay(3000);
