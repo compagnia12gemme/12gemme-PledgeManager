@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using PledgeManager.Web.Models;
 using PledgeManager.Web.ViewModels;
 using System;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace PledgeManager.Web.Controllers {
@@ -183,6 +185,65 @@ namespace PledgeManager.Web.Controllers {
 
             return RedirectToIndexWithNotification(campaignCode, false,
                 $"Scheduled {count} invitation emails.");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ExportCsv(
+            [FromRoute] string campaignCode
+        ) {
+            var campaign = await _database.GetCampaign(campaignCode);
+            var pledges = await _database.GetClosedPledges(campaign.Id);
+
+            var ms = new MemoryStream();
+            var writer = new StreamWriter(ms, Encoding.UTF8);
+
+            writer.Write("UserID,Name,Surname,Address,City,ZipCode,Province,Country,FinalPledge,");
+            foreach(var r in campaign.Rewards) {
+                writer.Write("{0},", r.Code);
+            }
+            foreach(var a in campaign.AddOns) {
+                writer.Write("{0},", a.Code);
+            }
+            foreach(var s in campaign.Survey) {
+                writer.Write("{0},", s.Name);
+            }
+            writer.WriteLine();
+
+            foreach(var p in pledges) {
+                writer.Write("\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\",\"{5}\",\"{6}\",\"{7}\",\"{8}\",",
+                    p.UserId,
+                    p.Shipping?.GivenName,
+                    p.Shipping?.Surname,
+                    p.Shipping?.Address + ((p.Shipping?.AddressSecondary != null) ? (", " + p.Shipping.AddressSecondary) : string.Empty),
+                    p.Shipping?.City,
+                    p.Shipping?.ZipCode,
+                    p.Shipping?.Province,
+                    p.Shipping?.Country,
+                    p.CurrentPledge.ToString(CultureInfo.InvariantCulture)
+                );
+                foreach(var r in campaign.Rewards) {
+                    writer.Write("{0},",
+                        (r.Code == p.CurrentRewardLevel) ? "1" : "0"
+                    );
+                }
+                foreach (var a in campaign.AddOns) {
+                    writer.Write("{0},",
+                        p.AddOns.Count(addon => addon.Code == a.Code)
+                    );
+                }
+                foreach (var s in campaign.Survey) {
+                    writer.Write("{0},",
+                        p.Survey.ReadSurveyValue(s)
+                    );
+                }
+                writer.WriteLine();
+            }
+
+            writer.Flush();
+            ms.Seek(0, SeekOrigin.Begin);
+            return File(ms, "text/csv",
+                string.Format("Backers {0} {1}-{2}-{3}.csv", campaign.Code, DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day)
+            );
         }
 
     }

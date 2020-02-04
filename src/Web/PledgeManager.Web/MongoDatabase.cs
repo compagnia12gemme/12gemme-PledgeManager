@@ -100,6 +100,19 @@ namespace PledgeManager.Web {
             return (pledges, closedCount);
         }
 
+        public async Task<IList<Pledge>> GetClosedPledges(string campaignId) {
+            var filter = Builders<Pledge>.Filter.And(
+                Builders<Pledge>.Filter.Eq(p => p.CampaignId, campaignId),
+                Builders<Pledge>.Filter.Eq(p => p.IsClosed, true)
+            );
+
+            var pledges = await PledgeCollection.Find(filter)
+                .SortBy(p => p.LastUpdate)
+                .ToListAsync();
+
+            return pledges;
+        }
+
         private IMongoDatabase LogsDatabase {
             get {
                 return Client.GetDatabase("Logs");
