@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace PledgeManager.Web.Controllers {
@@ -207,6 +208,7 @@ namespace PledgeManager.Web.Controllers {
             foreach(var s in campaign.Survey) {
                 writer.Write("{0},", s.Name);
             }
+            writer.Write("Note,");
             writer.WriteLine();
 
             foreach(var p in pledges) {
@@ -236,13 +238,14 @@ namespace PledgeManager.Web.Controllers {
                         p.Survey.ReadSurveyValue(s)
                     );
                 }
+                writer.Write("\"{0}\",", Regex.Replace(p.Note ?? string.Empty, "[\n\r]*", string.Empty));
                 writer.WriteLine();
             }
 
             writer.Flush();
             ms.Seek(0, SeekOrigin.Begin);
             return File(ms, "text/csv",
-                string.Format("Backers {0} {1}-{2}-{3}.csv", campaign.Code, DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day)
+                string.Format("backers.csv", campaign.Code, DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day)
             );
         }
 
