@@ -80,7 +80,7 @@ namespace PledgeManager.Web {
             var sb = new StringBuilder();
             sb.Append(GetGreeting("Ciao", pledge?.Shipping));
             sb.Append("\n");
-            sb.Append("La tua ricompensa per la campagna di crowdfunding non è ancora stata finalizzata: questo significa che non sappiamo ancora quali siano la ricompensa e gli articoli aggiuntivi che desideri ottenere. Per permetterci di procedere con l’invio del materiale senza ritardi, ti preghiamo gentilmente di concludere la procedura quanto prima.\n\n");
+            sb.Append("La tua ricompensa per la campagna di crowdfunding non è ancora stata finalizzata: questo significa che le informazioni sulla ricompensa e gli articoli aggiuntivi che desideri ottenere ed il tuo indirizzo di spedizione non sono ancora stati registrati.\n\n");
             sb.Append("Clicca sul collegamento qui sotto per accedere al tuo pannello di gestione:\n");
             sb.Append(GetPledgeManagerLink(campaign, pledge));
             sb.Append("\n\n");
