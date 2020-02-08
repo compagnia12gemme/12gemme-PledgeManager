@@ -1,5 +1,5 @@
 ﻿@model PledgeManager.Web.ViewModels.PledgeClosedViewModel
-@using CommonMark
+@using PledgeManager.Web
 @{
     ViewData["Title"] = "Gestione offerta";
     ViewData["CoverUrl"] = Model.Campaign.CoverUrl;
@@ -22,13 +22,25 @@
                 <b>@Model.CurrentReward.Title</b>
             </li>
             @foreach (var addon in Model.AddedAddOns) {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    @addon.AddOn.Title
-                    @if(addon.Variant != null) {
-                        <span class="badge badge-secondary">@addon.Variant</span>
-                    }
-                </li>
+            <li class="list-group-item">
+                @addon.AddOn.Title
+                @if(addon.Variant != null) {
+                    <span class="badge badge-secondary">@addon.Variant</span>
+                }
+            </li>
             }
+        </ul>
+
+        <p>Risposte al sondaggio:</p>
+        <ul class="list-group">
+        @foreach(var survey in Model.Campaign.Survey) {
+            if (!string.IsNullOrEmpty(Model.Pledge.Survey.ReadSurveyValue(survey))) {
+            <li class="list-group-item">
+                <h5 class="mb-1">@survey.Title</h5>
+                <p>@Model.Pledge.Survey.ReadSurveyValue(survey)</p>
+            </li>
+            }
+        }
         </ul>
 
         <p>Di nuovo, grazie per il tuo supporto!</p>

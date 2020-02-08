@@ -130,6 +130,7 @@
                     <tr>
                         <td colspan="5">
                             <div class="form-line">
+                                @if (!pledge.IsClosed) {
                                 <form action="@Url.Action(nameof(CampaignAdminController.SendInvite), "CampaignAdmin", new { campaignCode = Model.Campaign.Code })" method="post">
                                     <input type="hidden" name="userId" value="@pledge.UserId" />
 
@@ -141,6 +142,7 @@
 
                                     <button type="submit" class="btn btn-primary btn-sm">Send reminder</button>
                                 </form>
+                                }
                             </div>
                         </td>
                     </tr>
