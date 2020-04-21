@@ -17,6 +17,18 @@
 
         <p>La tua offerta è stata finalizzata e correttamente registrata. Non resta altro che mettersi comodi ed aspettare. 😉</p>
 
+        <p>
+            Il tuo indirizzo di consegna:<br />
+            @Model.Pledge.Shipping.GivenName&nbsp;@Model.Pledge.Shipping.Surname<br />
+            @Model.Pledge.Shipping.Address<br />
+            @if(Model.Pledge.Shipping.AddressSecondary != null) {
+                @Model.Pledge.Shipping.AddressSecondary<br />
+            }
+            @Model.Pledge.Shipping.ZipCode&nbsp;@Model.Pledge.Shipping.City&nbsp;(@Model.Pledge.Shipping.Province)<br />
+            @Model.Pledge.Shipping.Country
+        </p>
+
+        <h3>Ricompensa</h3>
         <ul class="list-group order-summary">
             <li class="list-group-item list-group-item-primary">
                 <b>@Model.CurrentReward.Title</b>
@@ -31,13 +43,13 @@
             }
         </ul>
 
-        <p>Risposte al sondaggio:</p>
+        <h3>Risposte al sondaggio</h3>
         <ul class="list-group">
         @foreach(var survey in Model.Campaign.Survey) {
-            if (!string.IsNullOrEmpty(Model.Pledge.Survey.ReadSurveyValue(survey))) {
+            if (!string.IsNullOrEmpty(Model.Pledge.Survey.ReadSurveyValueToHuman(survey))) {
             <li class="list-group-item">
                 <h5 class="mb-1">@survey.Title</h5>
-                <p>@Model.Pledge.Survey.ReadSurveyValue(survey)</p>
+                @Model.Pledge.Survey.ReadSurveyValueToHuman(survey)
             </li>
             }
         }
