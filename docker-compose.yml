@@ -20,8 +20,8 @@ services:
     expose:
     - "8080"
     environment:
-    - ASPNETCORE_ENVIRONMENT=Development
-    - LINK_BASE=https://12gem.me
+    - ASPNETCORE_ENVIRONMENT=Production
+    - SELF_HOST=pledge.12gem.me
     labels:
     - "traefik.enable=true"
     - "traefik.docker.network=web"
