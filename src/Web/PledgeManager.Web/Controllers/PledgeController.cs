@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using MongoDB.Bson;
 using PledgeManager.Web.Models;
 using PledgeManager.Web.ViewModels;
@@ -10,6 +12,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -83,6 +86,7 @@ namespace PledgeManager.Web.Controllers {
             return RedirectToAction(nameof(Index));
         }
 
+        [Authenticate(Startup.CampaignLoginPolicy)]
         public async Task<IActionResult> Index(
             [FromRoute] string campaignCode,
             [FromRoute] int userId,
@@ -93,8 +97,11 @@ namespace PledgeManager.Web.Controllers {
                 return ret;
             }
 
-            pledge.LastAccess = DateTime.UtcNow;
-            await _database.UpdatePledge(pledge);
+            var campaignLogin = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!campaignCode.Equals(campaignLogin, StringComparison.InvariantCultureIgnoreCase)) {
+                pledge.LastAccess = DateTime.UtcNow;
+                await _database.UpdatePledge(pledge);
+            }
 
             // Rapid access reward and add-on maps
             var rewardMap = campaign.Rewards.ToDictionary(reward => reward.Code);

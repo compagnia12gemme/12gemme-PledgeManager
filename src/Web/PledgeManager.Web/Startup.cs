@@ -44,7 +44,7 @@ namespace PledgeManager.Web {
                         IsEssential = true,
                         Name = "PledgeManagerCampaignLogin",
                         SecurePolicy = CookieSecurePolicy.None,
-                        SameSite = SameSiteMode.None,
+                        SameSite = SameSiteMode.Strict,
                         HttpOnly = true
                     };
                 });
