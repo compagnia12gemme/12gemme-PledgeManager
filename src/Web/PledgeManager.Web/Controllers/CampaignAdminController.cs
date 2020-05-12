@@ -198,7 +198,7 @@ namespace PledgeManager.Web.Controllers {
             var ms = new MemoryStream();
             var writer = new StreamWriter(ms, Encoding.UTF8);
 
-            writer.Write("UserID,Name,Surname,Address,City,ZipCode,Province,Country,FinalPledge,");
+            writer.Write("UserID,Email,Name,Surname,Address,City,ZipCode,Province,Country,FinalPledge,");
             foreach(var r in campaign.Rewards) {
                 writer.Write("{0},", r.Code);
             }
@@ -212,8 +212,9 @@ namespace PledgeManager.Web.Controllers {
             writer.WriteLine();
 
             foreach(var p in pledges) {
-                writer.Write("\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\",\"{5}\",\"{6}\",\"{7}\",\"{8}\",",
+                writer.Write("\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\",\"{5}\",\"{6}\",\"{7}\",\"{8}\",\"{9}\",",
                     p.UserId,
+                    p.Email,
                     p.Shipping?.GivenName,
                     p.Shipping?.Surname,
                     p.Shipping?.Address + ((p.Shipping?.AddressSecondary != null) ? (", " + p.Shipping.AddressSecondary) : string.Empty),
