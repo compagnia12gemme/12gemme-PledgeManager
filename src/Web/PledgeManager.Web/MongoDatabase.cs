@@ -33,7 +33,9 @@ namespace PledgeManager.Web {
                             var connStr = _configuration.GetSection("MongoDb")["ConnectionString"];
 
                             _logger.LogInformation("Creating new Mongo client");
-                            _client = new MongoClient(connStr);
+                            var settings = MongoClientSettings.FromConnectionString(connStr);
+                            settings.WriteConcern = WriteConcern.WMajority;
+                            _client = new MongoClient(settings);
                         }
                     }
                 }
