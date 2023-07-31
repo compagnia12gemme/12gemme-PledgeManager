@@ -94,7 +94,9 @@ namespace PledgeManager.Web.Controllers {
         }
 
         [HttpGet]
-        public IActionResult Logout() {
+        public async Task<IActionResult> Logout() {
+            await HttpContext.SignOutAsync(Startup.CampaignLoginCookieScheme);
+
             return Content("Logout");
         }
 

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using PledgeManager.Web.Models;
 using PledgeManager.Web.ViewModels;
 using System;
@@ -101,6 +100,19 @@ namespace PledgeManager.Web.Controllers {
 
             return RedirectToIndexWithNotification(campaignCode, false,
                 $"Reminder email scheduled for pledge #{userId}.");
+        }
+
+        public async Task<IActionResult> ForceClose(
+            [FromRoute] string campaignCode,
+            [FromForm] int userId
+        ) {
+            var campaign = await _database.GetCampaign(campaignCode);
+            var pledge = await _database.GetPledge(campaign.Id, userId);
+
+
+
+            return RedirectToIndexWithNotification(campaignCode, false,
+                $"Pledge #{userId} closed.");
         }
 
         private static readonly Dictionary<string, string> CountryMap = new Dictionary<string, string>() {
